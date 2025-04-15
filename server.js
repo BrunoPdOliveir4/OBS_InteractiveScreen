@@ -10,17 +10,29 @@ const io = socketIo(server);
 app.use(express.static(path.join(__dirname, 'public')));
 
 io.on('connection', (socket) => {
-  console.log(`Socket conectado: ${socket.id}`);
+    console.log(`Socket conectado: ${socket.id}`);
+  
+    socket.on('novo-elemento', (data) => {
+      socket.broadcast.emit('novo-elemento', data);
+    });
+  
+    socket.on('mover-elemento', (data) => {
+      socket.broadcast.emit('mover-elemento', data);
+    });
+  
+    socket.on('redimensionar-elemento', (data) => {
+      socket.broadcast.emit('redimensionar-elemento', data);
+    });
+  
+    socket.on('editar-elemento', (data) => {
+      socket.broadcast.emit('editar-elemento', data);
+    });
 
-  socket.on('mover-h1', (posicao) => {
-    // Envia para todos, exceto o que moveu
-    io.emit('atualizar-h1', posicao);
+    socket.on('remover-elemento', (data) => {
+        socket.broadcast.emit('remover-elemento', data);
+      });      
   });
-
-  socket.on('redimensionar-h1', (dimensoes) => {
-    socket.broadcast.emit('atualizar-redimensionar-h1', dimensoes);
-  });
-});
+  
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
