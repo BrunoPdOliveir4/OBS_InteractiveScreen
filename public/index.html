@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Socket.IO Teste</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      background: white;
+    }
+
+    #drag-h1 {
+      position: absolute;
+      top: 100px;
+      left: 100px;
+      cursor: move;
+      user-select: none;
+      background: #f0f0f0;
+      padding: 10px 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      transition: left 0.1s, top 0.1s;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="drag-h1">Conectado ao WebSocket</h1>
+
+  <script>
+    const socket = io();
+    const h1 = document.getElementById('drag-h1');
+    let isDragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    h1.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      offsetX = e.clientX - h1.offsetLeft;
+      offsetY = e.clientY - h1.offsetTop;
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        const left = e.clientX - offsetX;
+        const top = e.clientY - offsetY;
+        h1.style.left = `${left}px`;
+        h1.style.top = `${top}px`;
+
+        // Envia a posição para o servidor
+        socket.emit('mover-h1', { left, top });
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+
+    // Recebe a posição de outros usuários
+    socket.on('atualizar-h1', ({ left, top }) => {
+      h1.style.left = `${left}px`;
+      h1.style.top = `${top}px`;
+    });
+  </script>
+</body>
+</html>
