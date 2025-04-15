@@ -23,12 +23,15 @@
       position: absolute;
       min-width: 100px;
       min-height: 40px;
-      background: #fefefe;
-      border: 1px solid #aaa;
       padding: 5px;
       border-radius: 6px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
       user-select: none;
+    }
+    .texto{
+      background: #fefefe;
+      border: 1px solid #aaa;
+
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
 
     .resizer {
@@ -105,6 +108,7 @@
       el.appendChild(deleteBtn);
 
       if (tipo === 'texto') {
+        el.className += ' texto';
         el.textContent = conteudo;
         el.appendChild(deleteBtn);
       } else if (tipo === 'imagem') {
