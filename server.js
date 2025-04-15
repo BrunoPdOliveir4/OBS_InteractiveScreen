@@ -16,6 +16,10 @@ io.on('connection', (socket) => {
     // Envia para todos, exceto o que moveu
     io.emit('atualizar-h1', posicao);
   });
+
+  socket.on('redimensionar-h1', (dimensoes) => {
+    socket.broadcast.emit('atualizar-redimensionar-h1', dimensoes);
+  });
 });
 
 const PORT = process.env.PORT || 3000;

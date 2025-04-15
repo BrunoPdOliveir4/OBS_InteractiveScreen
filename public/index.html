@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Socket.IO Teste</title>
+  <title>Socket.IO Drag & Resize</title>
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <style>
     body {
@@ -11,59 +11,104 @@
       height: 100vh;
       overflow: hidden;
       position: relative;
-      background: white;
+      background: #f0f0f0;
     }
 
-    #drag-h1 {
+    #resizable-box {
       position: absolute;
       top: 100px;
       left: 100px;
-      cursor: move;
-      user-select: none;
-      background: #f0f0f0;
-      padding: 10px 20px;
-      border-radius: 10px;
+      width: 300px;
+      height: 100px;
+      background: white;
+      border: 2px solid #ccc;
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      transition: left 0.1s, top 0.1s;
+      border-radius: 8px;
+      cursor: move;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
     }
+
+    /* Alças para redimensionar */
+    .resizer {
+      width: 10px;
+      height: 10px;
+      background: #888;
+      position: absolute;
+      z-index: 10;
+    }
+
+    .resizer.br { right: -5px; bottom: -5px; cursor: se-resize; }
   </style>
 </head>
 <body>
-  <h1 id="drag-h1">Conectado ao WebSocket</h1>
+
+  <div id="resizable-box">
+    <h1 id="drag-h1">Conectado ao WebSocket</h1>
+    <div class="resizer br"></div>
+  </div>
 
   <script>
     const socket = io();
-    const h1 = document.getElementById('drag-h1');
-    let isDragging = false;
-    let offsetX = 0;
-    let offsetY = 0;
 
-    h1.addEventListener('mousedown', (e) => {
+    const box = document.getElementById('resizable-box');
+    const resizer = box.querySelector('.resizer.br');
+    let isDragging = false;
+    let isResizing = false;
+    let offsetX, offsetY;
+
+    // Arrastar
+    box.addEventListener('mousedown', (e) => {
+      if (e.target.classList.contains('resizer')) return;
+
       isDragging = true;
-      offsetX = e.clientX - h1.offsetLeft;
-      offsetY = e.clientY - h1.offsetTop;
+      offsetX = e.clientX - box.offsetLeft;
+      offsetY = e.clientY - box.offsetTop;
+    });
+
+    // Redimensionar
+    resizer.addEventListener('mousedown', (e) => {
+      isResizing = true;
+      e.stopPropagation();
     });
 
     document.addEventListener('mousemove', (e) => {
       if (isDragging) {
         const left = e.clientX - offsetX;
         const top = e.clientY - offsetY;
-        h1.style.left = `${left}px`;
-        h1.style.top = `${top}px`;
+        box.style.left = `${left}px`;
+        box.style.top = `${top}px`;
 
-        // Envia a posição para o servidor
         socket.emit('mover-h1', { left, top });
+      }
+
+      if (isResizing) {
+        const newWidth = e.clientX - box.offsetLeft;
+        const newHeight = e.clientY - box.offsetTop;
+        box.style.width = `${newWidth}px`;
+        box.style.height = `${newHeight}px`;
+
+        socket.emit('redimensionar-h1', { width: newWidth, height: newHeight });
       }
     });
 
     document.addEventListener('mouseup', () => {
       isDragging = false;
+      isResizing = false;
     });
 
-    // Recebe a posição de outros usuários
+    // Receber posição
     socket.on('atualizar-h1', ({ left, top }) => {
-      h1.style.left = `${left}px`;
-      h1.style.top = `${top}px`;
+      box.style.left = `${left}px`;
+      box.style.top = `${top}px`;
+    });
+
+    // Receber tamanho
+    socket.on('atualizar-redimensionar-h1', ({ width, height }) => {
+      box.style.width = `${width}px`;
+      box.style.height = `${height}px`;
     });
   </script>
 </body>
