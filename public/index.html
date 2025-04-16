@@ -71,6 +71,12 @@
       text-align: center;
       cursor: pointer;
     }
+    .elemento video {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
   </style>
 </head>
 <body>
@@ -78,6 +84,8 @@
   <div class="botoes">
     <button id="btn-add-texto">+ Texto</button>
     <button id="btn-add-img">+ Imagem</button>
+    <button id="btn-add-video">+ Vídeo</button><label style="background-color: red;"> in test</label>
+
   </div>
 
   <div id="area"></div>
@@ -118,7 +126,16 @@
         img.style.height = '100%';
         el.appendChild(img);
         el.appendChild(deleteBtn);
+      } else if (tipo === 'video') {
+        const video = document.createElement('video');
+        video.src = conteudo;
+        video.controls = true;
+        video.style.width = '100%';
+        video.style.height = '100%';
+        el.appendChild(video);
+        el.appendChild(deleteBtn);
       }
+
 
       const resizer = document.createElement('div');
       resizer.className = 'resizer';
@@ -181,6 +198,18 @@
 
       area.appendChild(el);
     }
+    const btnVideo = document.getElementById('btn-add-video');
+
+    btnVideo.addEventListener('click', () => {
+      const url = prompt('URL do vídeo:');
+      if (url) {
+        const id = 'el-' + Date.now();
+        const data = { id, tipo: 'video', conteudo: url, width: 320, height: 240 };
+        criarElemento(data);
+        socket.emit('novo-elemento', data);
+      }
+    });
+
 
     // Criar texto
     btnTexto.addEventListener('click', () => {
