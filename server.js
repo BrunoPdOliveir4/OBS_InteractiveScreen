@@ -30,8 +30,15 @@ io.on('connection', (socket) => {
 
     socket.on('remover-elemento', (data) => {
         socket.broadcast.emit('remover-elemento', data);
-      });      
-  });
+    });      
+});
+app.get('/editor', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+}
+);
+app.get('/show', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'show.html'));
+});
   
 
 const PORT = process.env.PORT || 3000;
