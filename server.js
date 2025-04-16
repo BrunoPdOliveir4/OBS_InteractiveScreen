@@ -30,8 +30,23 @@ io.on('connection', (socket) => {
 
     socket.on('remover-elemento', (data) => {
         socket.broadcast.emit('remover-elemento', data);
-      });      
-  });
+    });
+          
+    socket.on('desenho', (data) => {
+      socket.broadcast.emit('desenho', data);
+    });
+    
+    socket.on('apagar', (dados) => {
+      socket.broadcast.emit('apagar', dados);
+    });
+});
+app.get('/editor', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+}
+);
+app.get('/show', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'show.html'));
+});
   
 
 const PORT = process.env.PORT || 3000;
