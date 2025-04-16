@@ -1,0 +1,192 @@
+import { ElementManager } from './utils/ElementsManager.js';
+const elementManager = new ElementManager();
+const socket = io();
+const area = document.getElementById('area');
+const btnTexto = document.getElementById('btn-add-texto');
+const btnImg = document.getElementById('btn-add-img');
+const btnVideo = document.getElementById('btn-add-video');
+const btnErase = document.getElementById('btn-erase'); 
+const criarElemento = (data) => { 
+    const el = elementManager.createEditableElemnt(data, socket);
+    area.appendChild(el);
+}
+
+
+const canvas = document.createElement('canvas');
+canvas.id = 'canvas-desenho';
+canvas.style.position = 'absolute';
+canvas.style.top = '0';
+canvas.style.left = '0';
+canvas.style.zIndex = '0';
+area.appendChild(canvas);
+
+const ctx = canvas.getContext('2d');
+ctx.lineWidth = 2;
+ctx.strokeStyle = 'black';
+
+let modoDesenho = false;
+let modoErase = false; 
+let desenhando = false;
+let isErasing = false; 
+let primeiroPonto = true;
+
+document.getElementById('btn-desenhar').addEventListener('click', () => {
+  modoDesenho = !modoDesenho;
+  primeiroPonto = true;
+  modoErase = false; 
+  btnErase.style.backgroundColor = '';
+  document.body.style.cursor = ''; 
+});
+
+btnErase.addEventListener('click', () => {
+  modoErase = !modoErase;
+  modoDesenho = false; 
+  if (modoErase) {
+    btnErase.style.backgroundColor = '#fff'; 
+    document.body.style.cursor = 'crosshair'; 
+  } else {
+    btnErase.style.backgroundColor = ''; 
+    document.body.style.cursor = ''; 
+  }
+});
+
+// Função para ajustar o tamanho do canvas
+function ajustarCanvas() {
+  canvas.width = area.clientWidth;
+  canvas.height = area.clientHeight;
+}
+
+ajustarCanvas();
+window.addEventListener('resize', ajustarCanvas);
+
+// Eventos de desenhar no canvas
+canvas.addEventListener('mousedown', (e) => {
+  if (modoDesenho || modoErase) {
+    if (modoErase) {
+      isErasing = true;
+      ctx.globalCompositeOperation = 'destination-out'; 
+      ctx.beginPath();
+      ctx.arc(e.offsetX, e.offsetY, 10, 0, Math.PI * 2); 
+      ctx.fill();
+      socket.emit('apagar', { x: e.offsetX, y: e.offsetY });
+    } else {
+      desenhando = true;
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+      socket.emit('desenho', { x: e.offsetX, y: e.offsetY });
+    }
+  }
+});
+
+// Evento de movimento do mouse para desenhar ou apagar
+canvas.addEventListener('mousemove', (e) => {
+  if (desenhando && modoDesenho) {
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.stroke();
+    socket.emit('desenho', { x: e.offsetX, y: e.offsetY });
+  } else if (isErasing && modoErase) {
+    ctx.arc(e.offsetX, e.offsetY, 10, 0, Math.PI * 2); 
+    ctx.fill();
+    socket.emit('apagar', { x: e.offsetX, y: e.offsetY });
+  }
+});
+
+canvas.addEventListener('mouseup', () => {
+  desenhando = false;
+  isErasing = false;
+  ctx.globalCompositeOperation = 'source-over'; 
+});
+canvas.addEventListener('mouseout', () => {
+  desenhando = false;
+  isErasing = false;
+  ctx.globalCompositeOperation = 'source-over'; 
+});
+canvas.addEventListener('mouseleave', () => {
+  desenhando = false;
+  isErasing = false;
+  ctx.globalCompositeOperation = 'source-over'; 
+});
+
+
+
+
+// Evento de adicionar vídeo
+btnVideo.addEventListener('click', () => {
+  const url = prompt('URL do vídeo:');
+  if (url) {
+    const id = 'el-' + Date.now();
+    const data = { id, tipo: 'video', conteudo: url, width: 320, height: 240 };
+    criarElemento(data);
+    socket.emit('novo-elemento', data);
+  }
+});
+
+// Eventos para criar texto e imagem
+btnTexto.addEventListener('click', () => {
+  const texto = prompt('Texto:');
+  const id = 'el-' + Date.now();
+  const data = { id, tipo: 'texto', conteudo: texto, width: 200, height: 60 };
+  criarElemento(data);
+  socket.emit('novo-elemento', data);
+});
+
+btnImg.addEventListener('click', () => {
+  const url = prompt('URL da imagem:');
+  if (url) {
+    const id = 'el-' + Date.now();
+    const data = { id, tipo: 'imagem', conteudo: url, width: 300, height: 200 };
+    criarElemento(data);
+    socket.emit('novo-elemento', data);
+  }
+});
+
+// WebSocket para sincronizar eventos entre os clientes
+socket.on('desenho', ({ x, y }) => {
+  if (modoDesenho) return;
+  if (primeiroPonto) {
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    primeiroPonto = false;
+  } else {
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  }
+});
+
+socket.on('apagar', ({ x, y }) => {
+  if (modoErase) return;
+  ctx.globalCompositeOperation = 'destination-out'; 
+  ctx.beginPath();
+  ctx.arc(x, y, 10, 0, Math.PI * 2); 
+  ctx.fill();
+  ctx.globalCompositeOperation = 'source-over'; 
+});
+
+socket.on('novo-elemento', (data) => criarElemento(data));
+socket.on('mover-elemento', ({ id, left, top }) => {
+  const el = document.querySelector(`[data-id="${id}"]`);
+  if (el) {
+    el.style.left = `${left}px`;
+    el.style.top = `${top}px`;
+  }
+});
+
+socket.on('redimensionar-elemento', ({ id, width, height }) => {
+  const el = document.querySelector(`[data-id="${id}"]`);
+  if (el) {
+    el.style.width = `${width}px`;
+    el.style.height = `${height}px`;
+  }
+});
+
+socket.on('editar-elemento', ({ id, conteudo }) => {
+  const el = document.querySelector(`[data-id="${id}"]`);
+  if (el && el.dataset.tipo === 'texto') {
+    el.textContent = conteudo;
+  }
+});
+
+socket.on('remover-elemento', ({ id }) => {
+  const el = document.querySelector(`[data-id="${id}"]`);
+  if (el) el.remove();
+});

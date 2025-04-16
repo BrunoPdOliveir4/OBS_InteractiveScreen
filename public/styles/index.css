@@ -1,0 +1,69 @@
+body {
+    margin: 0;
+    padding: 10px;
+    font-family: sans-serif;
+    background: #fff;
+}
+
+#area {
+    position: relative;
+    width: 100%;
+    height: 90vh;
+    border: 2px dashed #bbb;
+}
+
+.elemento {
+    position: absolute;
+    min-width: 100px;
+    min-height: 40px;
+    padding: 5px;
+    border-radius: 6px;
+    user-select: none;
+}
+.texto {
+    background: #fefefe;
+    border: 1px solid #aaa;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+.resizer {
+    width: 10px;
+    height: 10px;
+    background: #555;
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    cursor: se-resize;
+}
+
+.elemento img {
+    max-width: 100%;
+    max-height: 100%;
+    background-color: rgba(255, 255, 255, 0);
+    display: block;
+    pointer-events: none;
+}
+
+.botoes {
+    margin-bottom: 10px;
+}
+
+.elemento .delete {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+    line-height: 20px;
+    text-align: center;
+    cursor: pointer;
+}
+.elemento video {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
