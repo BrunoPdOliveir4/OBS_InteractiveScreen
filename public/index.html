@@ -82,6 +82,8 @@
 <body>
 
   <div class="botoes">
+    <button id="btn-desenhar">+ Desenhar</button>
+    <button id="btn-apagar">- Apagar</button>
     <button id="btn-add-texto">+ Texto</button>
     <button id="btn-add-img">+ Imagem</button>
     <button id="btn-add-video">+ Vídeo</button><label style="background-color: red;"> in test</label>
@@ -95,7 +97,69 @@
     const area = document.getElementById('area');
     const btnTexto = document.getElementById('btn-add-texto');
     const btnImg = document.getElementById('btn-add-img');
+    const btnVideo = document.getElementById('btn-add-video');
+ 
+    const canvas = document.createElement('canvas');
+    canvas.id = 'canvas-desenho';
+    canvas.style.position = 'absolute';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.zIndex = '0';
+    area.appendChild(canvas);
+    
+    const ctx = canvas.getContext('2d');
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'black';
 
+    function ajustarCanvas() {
+      canvas.width = area.clientWidth;
+      canvas.height = area.clientHeight;
+    }
+
+    ajustarCanvas();
+    window.addEventListener('resize', ajustarCanvas);
+
+    let modoDesenho = false;
+    let desenhando = false;
+    let primeiroPonto = true;
+
+    document.getElementById('btn-desenhar').addEventListener('click', () => {
+      modoDesenho = !modoDesenho;
+      primeiroPonto = true;
+    });
+
+    canvas.addEventListener('mousedown', (e) => {
+      if (!modoDesenho) return;
+      desenhando = true;
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+      socket.emit('desenho', { x: e.offsetX, y: e.offsetY });
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (desenhando && modoDesenho) {
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.stroke();
+        socket.emit('desenho', { x: e.offsetX, y: e.offsetY });
+      }
+    });
+
+    canvas.addEventListener('mouseup', () => {
+      desenhando = false;
+    });
+
+    socket.on('desenho', ({ x, y }) => {
+      if (modoDesenho) return;
+      if (primeiroPonto) {
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        primeiroPonto = false;
+      } else {
+        ctx.lineTo(x, y);
+        ctx.stroke();
+      }
+    });
+    
     function criarElemento({ id, tipo = 'texto', conteudo = 'Novo texto', left = 100, top = 100, width = 200, height = 60 }) {
       const el = document.createElement('div');
       el.className = 'elemento';
@@ -198,7 +262,6 @@
 
       area.appendChild(el);
     }
-    const btnVideo = document.getElementById('btn-add-video');
 
     btnVideo.addEventListener('click', () => {
       const url = prompt('URL do vídeo:');
@@ -231,6 +294,7 @@
     });
 
     // WebSocket listeners
+
     socket.on('novo-elemento', (data) => criarElemento(data));
     socket.on('mover-elemento', ({ id, left, top }) => {
       const el = document.querySelector(`[data-id="${id}"]`);

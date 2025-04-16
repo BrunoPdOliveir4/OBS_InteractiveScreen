@@ -30,7 +30,11 @@ io.on('connection', (socket) => {
 
     socket.on('remover-elemento', (data) => {
         socket.broadcast.emit('remover-elemento', data);
-    });      
+    });
+          
+    socket.on('desenho', (data) => {
+      socket.broadcast.emit('desenho', data);
+    });
 });
 app.get('/editor', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));

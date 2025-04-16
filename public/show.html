@@ -46,71 +46,96 @@
 </head>
 <body>
 
-  <div id="area"></div>
+<div id="area"></div>
+<canvas id="canvas-desenho" style="position:absolute; top:0; left:0; z-index:0;"></canvas>
 
-  <script>
+<script>
     const socket = io();
     const area = document.getElementById('area');
+    const canvas = document.getElementById('canvas-desenho');
+    const ctx = canvas.getContext('2d');
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'black';
+
 
     function criarElemento({ id, tipo = 'texto', conteudo = '', left = 100, top = 100, width = 200, height = 60 }) {
-      const el = document.createElement('div');
-      el.className = 'elemento';
-      el.setAttribute('data-id', id);
-      el.setAttribute('data-tipo', tipo);
-      el.style.left = `${left}px`;
-      el.style.top = `${top}px`;
-      el.style.width = `${width}px`;
-      el.style.height = `${height}px`;
+    const el = document.createElement('div');
+    el.className = 'elemento';
+    el.setAttribute('data-id', id);
+    el.setAttribute('data-tipo', tipo);
+    el.style.left = `${left}px`;
+    el.style.top = `${top}px`;
+    el.style.width = `${width}px`;
+    el.style.height = `${height}px`;
 
-      if (tipo === 'texto') {
-        el.textContent = conteudo;
-      } else if (tipo === 'imagem') {
-        const img = document.createElement('img');
-        img.src = conteudo;
-        img.style.width = '100%';
-        img.style.height = '100%';
-        el.appendChild(img);
-      } else if (tipo === 'video') {
-        const video = document.createElement('video');
-        video.src = conteudo;
-        video.controls = true;
-        video.style.width = '100%';
-        video.style.height = '100%';
-        el.appendChild(video);
-      }
-
-
-      area.appendChild(el);
+    if (tipo === 'texto') {
+    el.textContent = conteudo;
+    } else if (tipo === 'imagem') {
+    const img = document.createElement('img');
+    img.src = conteudo;
+    img.style.width = '100%';
+    img.style.height = '100%';
+    el.appendChild(img);
+    } else if (tipo === 'video') {
+    const video = document.createElement('video');
+    video.src = conteudo;
+    video.controls = true;
+    video.style.width = '100%';
+    video.style.height = '100%';
+    el.appendChild(video);
     }
+    
+    
+    area.appendChild(el);
+    }
+    function ajustarCanvas() {
+      canvas.width = area.clientWidth;
+      canvas.height = area.clientHeight;
+    }
+    ajustarCanvas();
+    window.addEventListener('resize', ajustarCanvas);
 
+    let primeiroPonto = true;
+
+    socket.on('desenho', ({ x, y }) => {
+        console.log(`Desenhando: ${x}, ${y}`);
+      if (primeiroPonto) {
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        primeiroPonto = false;
+      } else {
+        ctx.lineTo(x, y);
+        ctx.stroke();
+      }
+    });
     socket.on('novo-elemento', (data) => criarElemento(data));
     socket.on('mover-elemento', ({ id, left, top }) => {
-      const el = document.querySelector(`[data-id="${id}"]`);
-      if (el) {
+        const el = document.querySelector(`[data-id="${id}"]`);
+        if (el) {
         el.style.left = `${left}px`;
         el.style.top = `${top}px`;
-      }
+        }
     });
 
     socket.on('redimensionar-elemento', ({ id, width, height }) => {
-      const el = document.querySelector(`[data-id="${id}"]`);
-      if (el) {
+        const el = document.querySelector(`[data-id="${id}"]`);
+        if (el) {
         el.style.width = `${width}px`;
         el.style.height = `${height}px`;
-      }
+        }
     });
 
     socket.on('editar-elemento', ({ id, conteudo }) => {
-      const el = document.querySelector(`[data-id="${id}"]`);
-      if (el && el.dataset.tipo === 'texto') {
+        const el = document.querySelector(`[data-id="${id}"]`);
+        if (el && el.dataset.tipo === 'texto') {
         el.textContent = conteudo;
-      }
+        }
     });
 
     socket.on('remover-elemento', ({ id }) => {
-      const el = document.querySelector(`[data-id="${id}"]`);
-      if (el) el.remove();
+        const el = document.querySelector(`[data-id="${id}"]`);
+        if (el) el.remove();
     });
-  </script>
+</script>
 </body>
 </html>
