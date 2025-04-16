@@ -1,0 +1,36 @@
+body {
+    margin: 0;
+    padding: 10px;
+    font-family: sans-serif;
+    background: #fff;
+}
+
+#area {
+    position: relative;
+    width: 100%;
+    height: 90vh;
+}
+
+.elemento {
+    position: absolute;
+    min-width: 100px;
+    min-height: 40px;
+    padding: 5px;
+    border-radius: 6px;
+    user-select: none;
+}
+
+
+.elemento img {
+    max-width: 100%;
+    max-height: 100%;
+    background-color: rgba(255, 255, 255, 0);
+    display: block;
+    pointer-events: none;
+}
+
+.elemento video {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
