@@ -9,12 +9,10 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-const config = require('dotenv').config(__dirname + '/.env');
-
 app.use(express.static(path.join(__dirname, 'public')));
-const allowedUsers = [config.TESTER1, 
-  config.TESTER2, config.TESTER3, 
-  config.TESTER4, config.TESTER5];
+const allowedUsers = [process.env.TESTER1, 
+  process.env.TESTER2, process.env.TESTER3, 
+  process.env.TESTER4, process.env.TESTER5];
 
 const rooms = new Map();
 const roomMemo = new RoomMemo();
