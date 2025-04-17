@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/BrunoPdOliveir4/OBS_InteractiveScreen#readme",
   "dependencies": {
+    "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "socket.io": "^4.8.1"
   }

@@ -6,6 +6,7 @@ const btnTexto = document.getElementById('btn-add-texto');
 const btnImg = document.getElementById('btn-add-img');
 const btnVideo = document.getElementById('btn-add-video');
 const btnErase = document.getElementById('btn-erase'); 
+const btnDeleteAll = document.getElementById('btn-delete-all');
 const criarElemento = (data) => { 
     const el = elementManager.createEditableElemnt(data, socket);
     area.appendChild(el);
@@ -95,6 +96,7 @@ canvas.addEventListener('mouseup', () => {
   desenhando = false;
   isErasing = false;
   ctx.globalCompositeOperation = 'source-over'; 
+  socket.emit('parou-desenho');
 });
 canvas.addEventListener('mouseout', () => {
   desenhando = false;
@@ -140,7 +142,20 @@ btnImg.addEventListener('click', () => {
   }
 });
 
+btnDeleteAll.addEventListener('click', () => {
+  const elementos = document.querySelectorAll('.elemento');
+  elementos.forEach(el => el.remove());  
+  socket.emit('remover-tudo');
+});
+
+
 // WebSocket para sincronizar eventos entre os clientes
+socket.on('estado-inicial', (elementos) => {
+  elementos.forEach(el => {
+    criarElemento(el);
+  });
+});
+
 socket.on('desenho', ({ x, y }) => {
   if (modoDesenho) return;
   if (primeiroPonto) {
@@ -151,6 +166,10 @@ socket.on('desenho', ({ x, y }) => {
     ctx.lineTo(x, y);
     ctx.stroke();
   }
+});
+
+socket.on('parou-desenho', () => {
+  primeiroPonto = true
 });
 
 socket.on('apagar', ({ x, y }) => {
@@ -189,4 +208,11 @@ socket.on('editar-elemento', ({ id, conteudo }) => {
 socket.on('remover-elemento', ({ id }) => {
   const el = document.querySelector(`[data-id="${id}"]`);
   if (el) el.remove();
+});
+
+socket.on('remover-tudo', () => {
+  const elementos = document.querySelectorAll('.elemento');
+  elementos.forEach(el => el.remove());  
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  primeiroPonto = true;
 });
