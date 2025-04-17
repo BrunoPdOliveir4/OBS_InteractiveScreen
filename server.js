@@ -8,12 +8,13 @@ const RoomMemo = require('./src/RoomMemoization.js');
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
-const config = require('dotenv').config();
+
+const config = require('dotenv').config(__dirname + '/.env');
 
 app.use(express.static(path.join(__dirname, 'public')));
-const allowedUsers = [config.parsed.TESTER1, 
-  config.parsed.TESTER2, config.parsed.TESTER3, 
-  config.parsed.TESTER4, config.parsed.TESTER5];
+const allowedUsers = [config.TESTER1, 
+  config.TESTER2, config.TESTER3, 
+  config.TESTER4, config.TESTER5];
 
 const rooms = new Map();
 const roomMemo = new RoomMemo();
@@ -22,6 +23,7 @@ io.on('connection', (socket) => {
   const handshakeUrl = socket.handshake.headers.referer;
   const userId = new URL(handshakeUrl).searchParams.get("user");
 
+  console.log(userId);
   if (!userId || !allowedUsers.includes(userId)) {
     socket.emit('connect-erro', 'Acesso não autorizado');
     socket.disconnect();
