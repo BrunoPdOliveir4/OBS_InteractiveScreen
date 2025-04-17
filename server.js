@@ -23,7 +23,7 @@ io.on('connection', (socket) => {
   const userId = new URL(handshakeUrl).searchParams.get("user");
 
   if (!userId || !allowedUsers.includes(userId)) {
-    socket.emit('erro', 'Acesso não autorizado');
+    socket.emit('connect-erro', 'Acesso não autorizado');
     socket.disconnect();
     return;
   }

@@ -1,6 +1,14 @@
 import { ElementManager } from './utils/ElementsManager.js';
 const elementManager = new ElementManager();
+
 const socket = io();
+socket.on('connect-erro', (msg) => {
+  alert(msg);
+  const userId = prompt('Digite seu ID de usuário:');
+  const path = window.location.pathname;
+  window.location.href = path+`?user=${userId}`;
+});
+
 const area = document.getElementById('area');
 const btnTexto = document.getElementById('btn-add-texto');
 const btnImg = document.getElementById('btn-add-img');
@@ -145,6 +153,7 @@ btnImg.addEventListener('click', () => {
 btnDeleteAll.addEventListener('click', () => {
   const elementos = document.querySelectorAll('.elemento');
   elementos.forEach(el => el.remove());  
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   socket.emit('remover-tudo');
 });
 
