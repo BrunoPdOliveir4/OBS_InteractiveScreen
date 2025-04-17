@@ -2,43 +2,99 @@ const express = require('express');
 const http = require('http');
 const path = require('path');
 const socketIo = require('socket.io');
+const url = require('url');
+const RoomMemo = require('./src/RoomMemoization.js');
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
+const config = require('dotenv').config();
 
 app.use(express.static(path.join(__dirname, 'public')));
+const allowedUsers = [config.parsed.TESTER1, 
+  config.parsed.TESTER2, config.parsed.TESTER3, 
+  config.parsed.TESTER4, config.parsed.TESTER5];
+
+const rooms = new Map();
+const roomMemo = new RoomMemo();
 
 io.on('connection', (socket) => {
-    console.log(`Socket conectado: ${socket.id}`);
-  
-    socket.on('novo-elemento', (data) => {
-      socket.broadcast.emit('novo-elemento', data);
-    });
-  
-    socket.on('mover-elemento', (data) => {
-      socket.broadcast.emit('mover-elemento', data);
-    });
-  
-    socket.on('redimensionar-elemento', (data) => {
-      socket.broadcast.emit('redimensionar-elemento', data);
-    });
-  
-    socket.on('editar-elemento', (data) => {
-      socket.broadcast.emit('editar-elemento', data);
-    });
+  const handshakeUrl = socket.handshake.headers.referer;
+  const userId = new URL(handshakeUrl).searchParams.get("user");
 
-    socket.on('remover-elemento', (data) => {
-        socket.broadcast.emit('remover-elemento', data);
-    });
-          
-    socket.on('desenho', (data) => {
-      socket.broadcast.emit('desenho', data);
-    });
-    
-    socket.on('apagar', (dados) => {
-      socket.broadcast.emit('apagar', dados);
-    });
+  if (!userId || !allowedUsers.includes(userId)) {
+    socket.emit('connect-erro', 'Acesso não autorizado');
+    socket.disconnect();
+    return;
+  }
+
+  socket.join(userId);
+
+  const memo = roomMemo.get(userId) || roomMemo.initRoom(userId);
+
+  const estadoAtual = roomMemo.getState(userId) || null;
+ 
+  if(estadoAtual != null){
+    socket.emit('estado-inicial', estadoAtual);
+  }
+
+  socket.emit('welcome', userId === allowedUsers[1] ? 
+    `Bem vinda, ${userId}!` : `Bem vindo, ${userId}!`);
+  
+
+
+  rooms.set(socket.id, userId);
+  
+
+  console.log(`Socket conectado: ${socket.id} entrou na sala ${userId}`);
+  
+
+  socket.on('novo-elemento', (data) => {
+    roomMemo.addUpdateElemnt(userId, data);
+    socket.to(userId).emit('novo-elemento', data);
+  });
+
+  socket.on('mover-elemento', (data) => {
+    roomMemo.addUpdateElemnt(userId, data);
+    socket.to(userId).emit('mover-elemento', data);
+  });
+
+  socket.on('redimensionar-elemento', (data) => {
+    roomMemo.addUpdateElemnt(userId, data);
+    socket.to(userId).emit('redimensionar-elemento', data);
+  });
+
+  socket.on('editar-elemento', (data) => {
+    roomMemo.addUpdateElemnt(userId, data);
+    socket.to(userId).emit('editar-elemento', data);
+  });
+
+  socket.on('remover-elemento', (data) => {
+      roomMemo.removeElemnt(userId, data.id);
+      socket.to(userId).emit('remover-elemento', data);
+  });
+        
+  socket.on('desenho', (data) => {
+    socket.to(userId).emit('desenho', data);
+  });
+
+  socket.on('parou-desenho', () =>{
+    socket.to(userId).emit('parou-desenho', 'ok');
+  });
+
+  socket.on('apagar', (dados) => {
+    socket.to(userId).emit('apagar', dados);
+  });
+
+  socket.on('remover-tudo', () => {
+    roomMemo.clearRoom(userId);
+    socket.to(userId).emit('remover-tudo');
+  });
+
+  socket.on('disconnect', () => {
+    rooms.delete(socket.id);
+    console.log(`Socket desconectado: ${socket.id}`);
+  });
 });
 app.get('/editor', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));

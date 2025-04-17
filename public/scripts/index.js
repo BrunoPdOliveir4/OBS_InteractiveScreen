@@ -1,11 +1,20 @@
 import { ElementManager } from './utils/ElementsManager.js';
 const elementManager = new ElementManager();
+
 const socket = io();
+socket.on('connect-erro', (msg) => {
+  alert(msg);
+  const userId = prompt('Digite seu ID de usuário:');
+  const path = window.location.pathname;
+  window.location.href = path+`?user=${userId}`;
+});
+
 const area = document.getElementById('area');
 const btnTexto = document.getElementById('btn-add-texto');
 const btnImg = document.getElementById('btn-add-img');
 const btnVideo = document.getElementById('btn-add-video');
 const btnErase = document.getElementById('btn-erase'); 
+const btnDeleteAll = document.getElementById('btn-delete-all');
 const criarElemento = (data) => { 
     const el = elementManager.createEditableElemnt(data, socket);
     area.appendChild(el);
@@ -95,6 +104,7 @@ canvas.addEventListener('mouseup', () => {
   desenhando = false;
   isErasing = false;
   ctx.globalCompositeOperation = 'source-over'; 
+  socket.emit('parou-desenho');
 });
 canvas.addEventListener('mouseout', () => {
   desenhando = false;
@@ -140,7 +150,21 @@ btnImg.addEventListener('click', () => {
   }
 });
 
+btnDeleteAll.addEventListener('click', () => {
+  const elementos = document.querySelectorAll('.elemento');
+  elementos.forEach(el => el.remove());  
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  socket.emit('remover-tudo');
+});
+
+
 // WebSocket para sincronizar eventos entre os clientes
+socket.on('estado-inicial', (elementos) => {
+  elementos.forEach(el => {
+    criarElemento(el);
+  });
+});
+
 socket.on('desenho', ({ x, y }) => {
   if (modoDesenho) return;
   if (primeiroPonto) {
@@ -151,6 +175,10 @@ socket.on('desenho', ({ x, y }) => {
     ctx.lineTo(x, y);
     ctx.stroke();
   }
+});
+
+socket.on('parou-desenho', () => {
+  primeiroPonto = true
 });
 
 socket.on('apagar', ({ x, y }) => {
@@ -189,4 +217,11 @@ socket.on('editar-elemento', ({ id, conteudo }) => {
 socket.on('remover-elemento', ({ id }) => {
   const el = document.querySelector(`[data-id="${id}"]`);
   if (el) el.remove();
+});
+
+socket.on('remover-tudo', () => {
+  const elementos = document.querySelectorAll('.elemento');
+  elementos.forEach(el => el.remove());  
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  primeiroPonto = true;
 });
