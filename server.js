@@ -21,11 +21,11 @@ io.on('connection', (socket) => {
   const handshakeUrl = socket.handshake.headers.referer;
   const userId = new URL(handshakeUrl).searchParams.get("user");
 
-  if (!userId || !allowedUsers.includes(userId)) {
-    socket.emit('connect-erro', 'Acesso não autorizado');
-    socket.disconnect();
-    return;
-  }
+  //if (!userId || !allowedUsers.includes(userId)) {
+  //  socket.emit('connect-erro', 'Acesso não autorizado');
+  //  socket.disconnect();
+  //  return;
+  //}
 
   socket.join(userId);
 

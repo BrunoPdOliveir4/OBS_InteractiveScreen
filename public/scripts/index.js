@@ -8,6 +8,8 @@ socket.on('connect-erro', (msg) => {
   const path = window.location.pathname;
   window.location.href = path+`?user=${userId}`;
 });
+const apagadorVisual = elementManager.createEraser();
+document.body.appendChild(apagadorVisualg);
 
 const area = document.getElementById('area');
 const btnTexto = document.getElementById('btn-add-texto');
@@ -15,6 +17,7 @@ const btnImg = document.getElementById('btn-add-img');
 const btnVideo = document.getElementById('btn-add-video');
 const btnErase = document.getElementById('btn-erase'); 
 const btnDeleteAll = document.getElementById('btn-delete-all');
+
 const criarElemento = (data) => { 
     const el = elementManager.createEditableElemnt(data, socket);
     area.appendChild(el);
@@ -47,17 +50,32 @@ document.getElementById('btn-desenhar').addEventListener('click', () => {
   document.body.style.cursor = ''; 
 });
 
+
+
+// Alterna modo apagar
 btnErase.addEventListener('click', () => {
   modoErase = !modoErase;
-  modoDesenho = false; 
+  modoDesenho = false;
+
   if (modoErase) {
-    btnErase.style.backgroundColor = '#fff'; 
-    document.body.style.cursor = 'crosshair'; 
+    btnErase.style.backgroundColor = '#fff';
+    document.body.style.cursor = 'none'; // Esconde o cursor padrão
+    apagadorVisual.style.display = 'block';
   } else {
-    btnErase.style.backgroundColor = ''; 
-    document.body.style.cursor = ''; 
+    btnErase.style.backgroundColor = '';
+    document.body.style.cursor = '';
+    apagadorVisual.style.display = 'none';
   }
 });
+
+// Move o apagador com o mouse
+document.addEventListener('mousemove', (e) => {
+  if (modoErase) {
+    apagadorVisual.style.left = `${e.clientX - 10}px`; // Centraliza com base no tamanho
+    apagadorVisual.style.top = `${e.clientY - 10}px`;
+  }
+});
+
 
 // Função para ajustar o tamanho do canvas
 function ajustarCanvas() {
@@ -121,15 +139,15 @@ canvas.addEventListener('mouseleave', () => {
 
 
 // Evento de adicionar vídeo
-btnVideo.addEventListener('click', () => {
-  const url = prompt('URL do vídeo:');
-  if (url) {
-    const id = 'el-' + Date.now();
-    const data = { id, tipo: 'video', conteudo: url, width: 320, height: 240 };
-    criarElemento(data);
-    socket.emit('novo-elemento', data);
-  }
-});
+//btnVideo.addEventListener('click', () => {
+//  const url = prompt('URL do vídeo:');
+//  if (url) {
+//    const id = 'el-' + Date.now();
+//    const data = { id, tipo: 'video', conteudo: url, width: 320, height: 240 };
+//    criarElemento(data);
+//    socket.emit('novo-elemento', data);
+//  }
+//});
 
 // Eventos para criar texto e imagem
 btnTexto.addEventListener('click', () => {
@@ -166,7 +184,6 @@ socket.on('estado-inicial', (elementos) => {
 });
 
 socket.on('desenho', ({ x, y }) => {
-  if (modoDesenho) return;
   if (primeiroPonto) {
     ctx.beginPath();
     ctx.moveTo(x, y);
