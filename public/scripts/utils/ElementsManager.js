@@ -166,4 +166,18 @@ export class ElementManager{
         video.style.height = '100%';
         return video;
     }
+
+    createEraser = () =>{
+        // Cria o elemento da "bola" do apagador
+        const apagadorVisual = document.createElement('div');
+        apagadorVisual.style.position = 'fixed';
+        apagadorVisual.style.width = '20px'; // Tamanho da área de apagar
+        apagadorVisual.style.height = '20px';
+        apagadorVisual.style.borderRadius = '50%';
+        apagadorVisual.style.border = '2px solid red'; // Pode mudar a cor
+        apagadorVisual.style.pointerEvents = 'none'; // Não interfere nos cliques
+        apagadorVisual.style.zIndex = '9999';
+        apagadorVisual.style.display = 'none'; // Começa invisível
+        return apagadorVisual;
+    }
 }

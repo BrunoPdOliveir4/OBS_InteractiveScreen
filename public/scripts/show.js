@@ -121,6 +121,5 @@ socket.on('remover-tudo', () => {
     const elementos = document.querySelectorAll('.elemento');
     elementos.forEach(el => el.remove());  
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  });
+});
   
