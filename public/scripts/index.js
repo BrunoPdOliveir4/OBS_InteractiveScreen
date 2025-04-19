@@ -9,7 +9,7 @@ socket.on('connect-erro', (msg) => {
   window.location.href = path+`?user=${userId}`;
 });
 const apagadorVisual = elementManager.createEraser();
-document.body.appendChild(apagadorVisualg);
+document.body.appendChild(apagadorVisual);
 
 const area = document.getElementById('area');
 const btnTexto = document.getElementById('btn-add-texto');
