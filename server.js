@@ -12,7 +12,10 @@ const io = socketIo(server);
 app.use(express.static(path.join(__dirname, 'public')));
 const allowedUsers = [process.env.TESTER1, 
   process.env.TESTER2, process.env.TESTER3, 
-  process.env.TESTER4, process.env.TESTER5];
+  process.env.TESTER4, process.env.TESTER5,
+  process.env.TESTER6, process.env.TESTER7,
+  process.env.TESTER8, process.env.TESTER9,
+  process.env.TESTER10];
 
 const rooms = new Map();
 const roomMemo = new RoomMemo();
@@ -21,11 +24,11 @@ io.on('connection', (socket) => {
   const handshakeUrl = socket.handshake.headers.referer;
   const userId = new URL(handshakeUrl).searchParams.get("user");
 
- // if (!userId || !allowedUsers.includes(userId)) {
- //   socket.emit('connect-erro', 'Acesso não autorizado');
- //   socket.disconnect();
- //   return;
- // }
+  if (!userId || !allowedUsers.includes(userId)) {
+    socket.emit('connect-erro', 'Acesso não autorizado');
+    socket.disconnect();
+    return;
+  }
 
   socket.join(userId);
 
@@ -94,7 +97,7 @@ io.on('connection', (socket) => {
     rooms.delete(socket.id);
     console.log(`Socket desconectado: ${socket.id}`);
   });
-  
+
   socket.on('ocultar-elemento', ({ id }) => {
     socket.broadcast.emit('ocultar-elemento', { id });
   });
