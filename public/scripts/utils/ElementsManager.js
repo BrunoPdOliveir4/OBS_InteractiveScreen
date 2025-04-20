@@ -40,6 +40,7 @@ export class ElementManager{
         el.style.width = `${width}px`;
         el.style.height = `${height}px`;
 
+        //delete button
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'delete';
         deleteBtn.innerText = '×';
@@ -48,6 +49,32 @@ export class ElementManager{
             socket.emit('remover-elemento', { id });
         };
         el.appendChild(deleteBtn);
+        
+        // Hide button
+        const toggleVisibilityBtn = document.createElement('button');
+        toggleVisibilityBtn.className = 'hide';
+        toggleVisibilityBtn.innerText = '👁';
+        let ocultoParaOutros = false;
+
+        toggleVisibilityBtn.onclick = () => {
+            ocultoParaOutros = !ocultoParaOutros;
+
+            if (ocultoParaOutros) {
+                el.classList.add('hided');
+                el.style.opacity = '0.5';
+                toggleVisibilityBtn.innerText = '🚫';
+                socket.emit('ocultar-elemento', { id });
+            } else {
+                el.classList.remove('hided');
+                el.style.opacity = '1';
+                toggleVisibilityBtn.innerText = '👁';
+                socket.emit('mostrar-elemento', { id });
+            }
+        };
+
+        el._toggleVisibilityBtn = toggleVisibilityBtn;
+        el.appendChild(toggleVisibilityBtn);
+
 
         // Resizer for resizing functionality
         const resizer = document.createElement('div');

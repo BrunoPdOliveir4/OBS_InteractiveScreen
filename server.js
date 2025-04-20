@@ -21,11 +21,11 @@ io.on('connection', (socket) => {
   const handshakeUrl = socket.handshake.headers.referer;
   const userId = new URL(handshakeUrl).searchParams.get("user");
 
-  if (!userId || !allowedUsers.includes(userId)) {
-    socket.emit('connect-erro', 'Acesso não autorizado');
-    socket.disconnect();
-    return;
-  }
+ // if (!userId || !allowedUsers.includes(userId)) {
+ //   socket.emit('connect-erro', 'Acesso não autorizado');
+ //   socket.disconnect();
+ //   return;
+ // }
 
   socket.join(userId);
 
@@ -94,6 +94,17 @@ io.on('connection', (socket) => {
     rooms.delete(socket.id);
     console.log(`Socket desconectado: ${socket.id}`);
   });
+  
+  socket.on('ocultar-elemento', ({ id }) => {
+    socket.broadcast.emit('ocultar-elemento', { id });
+  });
+  
+  socket.on('mostrar-elemento', ({ id }) => {
+    socket.broadcast.emit('mostrar-elemento', { id });
+  });
+  
+
+
 });
 app.get('/editor', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));

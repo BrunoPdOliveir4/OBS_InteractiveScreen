@@ -115,6 +115,21 @@ canvas.addEventListener('mouseup', () => {
 socket.on('apagar', ({ x, y }) => {
     apagarDesenho(x, y);
 });
+socket.on('ocultar-elemento', ({ id }) => {
+    const el = document.querySelector(`[data-id="${id}"]`);
+    if (el) {
+        el.style.opacity = '0';
+        el.style.pointerEvents = 'none';
+    }
+});
+
+socket.on('mostrar-elemento', ({ id }) => {
+    const el = document.querySelector(`[data-id="${id}"]`);
+    if (el) {
+        el.style.opacity = '1';
+        el.style.pointerEvents = 'auto';
+    }
+});
 
 
 socket.on('remover-tudo', () => {

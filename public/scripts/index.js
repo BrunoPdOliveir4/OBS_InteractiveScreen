@@ -242,3 +242,27 @@ socket.on('remover-tudo', () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   primeiroPonto = true;
 });
+
+socket.on('ocultar-elemento', ({ id }) => {
+  const el = document.querySelector(`[data-id="${id}"]`);
+  if (el) {
+    el.classList.add('hided');
+    el.ocultoParaOutros = true;
+    el.style.opacity = '0.5';
+    if (el._toggleVisibilityBtn) {
+      el._toggleVisibilityBtn.innerText = '🚫';
+    }
+  }
+});
+
+socket.on('mostrar-elemento', ({ id }) => {
+  const el = document.querySelector(`[data-id="${id}"]`);
+  if (el) {
+    el.classList.remove('hided');
+    el.ocultoParaOutros = false;
+    el.style.opacity = '1';
+    if (el._toggleVisibilityBtn) {
+      el._toggleVisibilityBtn.innerText = '👁';
+    }
+  }
+});
