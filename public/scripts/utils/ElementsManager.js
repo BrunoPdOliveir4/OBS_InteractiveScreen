@@ -1,25 +1,28 @@
 export class ElementManager{
-    createElement({ id, tipo = 'texto', conteudo = 'Novo texto', left = 100, top = 100, width = 200, height = 60 }, socket) {
+    createElement({ id, type = 'texto', content = 'Novo texto', left = 100, top = 100, width = 200, height = 60 }, socket) {
         const el = document.createElement('div');
         el.className = 'elemento';
         el.setAttribute('data-id', id);
-        el.setAttribute('data-tipo', tipo);
+        el.setAttribute('data-type', type);
         el.style.left = `${left}px`;
         el.style.top = `${top}px`;
         el.style.width = `${width}px`;
         el.style.height = `${height}px`;
 
-        if (tipo === 'texto') {
-            el.textContent = conteudo;
-        } else if (tipo === 'imagem') {
+        if (type === 'texto') {
+            const text = document.createElement('div');
+            text.id = "textDiv";
+            text.textContent = content;
+            el.appendChild(text);
+        } else if (type === 'imagem') {
             const img = document.createElement('img');
-            img.src = conteudo;
+            img.src = content;
             img.style.width = '100%';
             img.style.height = '100%';
             el.appendChild(img);
-        } else if (tipo === 'video') {
+        } else if (type === 'video') {
             const video = document.createElement('video');
-            video.src = conteudo;
+            video.src = content;
             video.controls = true;
             video.style.width = '100%';
             video.style.height = '100%';
@@ -29,12 +32,12 @@ export class ElementManager{
     }
     
         // Função para criar elementos (texto, imagem, vídeo)
-    createEditableElemnt({ id, tipo = 'texto', conteudo = 'Novo texto', left = 100, top = 100, width = 200, height = 60 }, socket) {
+    createEditableElemnt({ id, type = 'texto', content = 'Novo texto', left = 100, top = 100, width = 200, height = 60 }, socket) {
         let isResizing = false; 
         const el = document.createElement('div');
         el.className = 'elemento';
         el.setAttribute('data-id', id);
-        el.setAttribute('data-tipo', tipo);
+        el.setAttribute('data-type', type);
         el.style.left = `${left}px`;
         el.style.top = `${top}px`;
         el.style.width = `${width}px`;
@@ -142,21 +145,25 @@ export class ElementManager{
         document.addEventListener('mouseup', stopResize);
         };
 
-        if (tipo === 'texto') {
-            const elTexto = this.createTextElemnt(conteudo);
+        if (type === 'texto') {
+            const elTexto = this.createTextElemnt(content);
             elTexto.addEventListener('dblclick', () => {
-                const novoTexto = prompt('Novo texto:', conteudo);
+                const novoTexto = prompt('Novo texto:', content);
                 if (novoTexto !== null) {
                     elTexto.textContent = novoTexto;
-                    socket.emit('editar-elemento', { id, conteudo: novoTexto });
+                    console.log(elTexto.style.color)
+                    console.log(elTexto)
+                    socket.emit('editar-elemento', { id, content: novoTexto, 
+                                                    color: elTexto.style.color, 
+                                                    size: elTexto.style.fontSize});
                 }
             });
             el.appendChild(elTexto);
-        } else if (tipo === 'imagem') {
-            const img = this.createImgElemnt(conteudo);
+        } else if (type === 'imagem') {
+            const img = this.createImgElemnt(content);
             el.appendChild(img);
-        } else if (tipo === 'video') {
-        const video = this.createVideoElemnt(conteudo);
+        } else if (type === 'video') {
+        const video = this.createVideoElemnt(content);
         el.appendChild(video);
         }
 
@@ -164,10 +171,10 @@ export class ElementManager{
     }
 
 
-    createTextElemnt= (conteudo) => {
+    createTextElemnt= (content) => {
         const elTexto = document.createElement('div');
         elTexto.className = 'texto';
-        elTexto.textContent = conteudo;
+        elTexto.textContent = content;
         elTexto.style.width = '100%';
         elTexto.style.height = '100%';
         elTexto.style.overflow = 'hidden';

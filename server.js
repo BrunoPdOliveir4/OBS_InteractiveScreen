@@ -9,6 +9,8 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
+require('dotenv').config();
+
 app.use(express.static(path.join(__dirname, 'public')));
 const allowedUsers = [process.env.TESTER1, 
   process.env.TESTER2, process.env.TESTER3, 
