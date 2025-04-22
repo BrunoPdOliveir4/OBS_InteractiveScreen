@@ -11,6 +11,7 @@ export class ElementManager{
 
         if (type === 'texto') {
             el.textContent = content;
+            el.id = 'textoDiv';
         } else if (type === 'imagem') {
             const img = document.createElement('img');
             img.src = content;
