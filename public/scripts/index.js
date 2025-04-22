@@ -143,7 +143,7 @@ canvas.addEventListener('mouseleave', () => {
 //  const url = prompt('URL do vídeo:');
 //  if (url) {
 //    const id = 'el-' + Date.now();
-//    const data = { id, tipo: 'video', conteudo: url, width: 320, height: 240 };
+//    const data = { id, type: 'video', content: url, width: 320, height: 240 };
 //    criarElemento(data);
 //    socket.emit('novo-elemento', data);
 //  }
@@ -153,7 +153,7 @@ canvas.addEventListener('mouseleave', () => {
 btnTexto.addEventListener('click', () => {
   const texto = prompt('Texto:');
   const id = 'el-' + Date.now();
-  const data = { id, tipo: 'texto', conteudo: texto, width: 200, height: 60 };
+  const data = { id, type: 'texto', content: texto, width: 200, height: 60 };
   criarElemento(data);
   socket.emit('novo-elemento', data);
 });
@@ -162,7 +162,7 @@ btnImg.addEventListener('click', () => {
   const url = prompt('URL da imagem:');
   if (url) {
     const id = 'el-' + Date.now();
-    const data = { id, tipo: 'imagem', conteudo: url, width: 300, height: 200 };
+    const data = { id, type: 'imagem', content: url, width: 300, height: 200 };
     criarElemento(data);
     socket.emit('novo-elemento', data);
   }
@@ -224,13 +224,18 @@ socket.on('redimensionar-elemento', ({ id, width, height }) => {
   }
 });
 
-socket.on('editar-elemento', ({ id, conteudo }) => {
+socket.on('editar-elemento', ({ id, content, color, size }) => {
   const el = document.querySelector(`[data-id="${id}"]`);
-  if (el && el.dataset.tipo === 'texto') {
-    el.textContent = conteudo;
+  if (el && el.dataset.type === 'texto') {
+    const elText = el.querySelector('#textoDiv'); 
+    console.log(elText);
+      if (elText) {
+          elText.innerText = content;
+          elText.style.color = color;
+          elText.style.fontSize = size;
+      }
   }
 });
-
 socket.on('remover-elemento', ({ id }) => {
   const el = document.querySelector(`[data-id="${id}"]`);
   if (el) el.remove();
