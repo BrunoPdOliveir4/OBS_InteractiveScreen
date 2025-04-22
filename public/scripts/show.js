@@ -75,8 +75,7 @@ socket.on('redimensionar-elemento', ({ id, width, height }) => {
 socket.on('editar-elemento', ({ id, conteudo }) => {
     const el = document.querySelector(`[data-id="${id}"]`);
     if (el && el.dataset.type === 'texto') {
-        const elText = el.getElementById('textDiv');
-        elText.innerText = conteudo;
+        el.textContent = conteudo;
     }
 });
 

@@ -224,16 +224,18 @@ socket.on('redimensionar-elemento', ({ id, width, height }) => {
   }
 });
 
-socket.on('editar-elemento', ({ id, content, size, color }) => {
+socket.on('editar-elemento', ({ id, content, color, size }) => {
   const el = document.querySelector(`[data-id="${id}"]`);
-  console.log(el);
   if (el && el.dataset.type === 'texto') {
-    el.innerText = content;
-    el.style.fontSize = size;
-    el.style.color = color;
+    const elText = el.querySelector('#textoDiv'); 
+    console.log(elText);
+      if (elText) {
+          elText.innerText = content;
+          elText.style.color = color;
+          elText.style.fontSize = size;
+      }
   }
 });
-
 socket.on('remover-elemento', ({ id }) => {
   const el = document.querySelector(`[data-id="${id}"]`);
   if (el) el.remove();

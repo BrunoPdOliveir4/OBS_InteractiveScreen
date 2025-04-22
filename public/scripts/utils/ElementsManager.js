@@ -10,10 +10,8 @@ export class ElementManager{
         el.style.height = `${height}px`;
 
         if (type === 'texto') {
-            const text = document.createElement('div');
-            text.id = "textDiv";
-            text.textContent = content;
-            el.appendChild(text);
+            el.textContent = content;
+            el.appendChild(elTexto);
         } else if (type === 'imagem') {
             const img = document.createElement('img');
             img.src = content;
@@ -151,8 +149,6 @@ export class ElementManager{
                 const novoTexto = prompt('Novo texto:', content);
                 if (novoTexto !== null) {
                     elTexto.textContent = novoTexto;
-                    console.log(elTexto.style.color)
-                    console.log(elTexto)
                     socket.emit('editar-elemento', { id, content: novoTexto, 
                                                     color: elTexto.style.color, 
                                                     size: elTexto.style.fontSize});
@@ -173,6 +169,7 @@ export class ElementManager{
 
     createTextElemnt= (content) => {
         const elTexto = document.createElement('div');
+        elTexto.id = "textoDiv"
         elTexto.className = 'texto';
         elTexto.textContent = content;
         elTexto.style.width = '100%';
