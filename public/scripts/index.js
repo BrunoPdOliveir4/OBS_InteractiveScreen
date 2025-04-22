@@ -224,7 +224,7 @@ socket.on('redimensionar-elemento', ({ id, width, height }) => {
   }
 });
 
-socket.on('editar-elemento', ({ id, content, color, size }) => {
+socket.on('editar-elemento', ({ id, content, color, size, font }) => {
   const el = document.querySelector(`[data-id="${id}"]`);
   if (el && el.dataset.type === 'texto') {
     const elText = el.querySelector('#textoDiv'); 
@@ -233,6 +233,7 @@ socket.on('editar-elemento', ({ id, content, color, size }) => {
           elText.innerText = content;
           elText.style.color = color;
           elText.style.fontSize = size;
+          elText.style.fontFamily = font; 
       }
   }
 });
