@@ -72,10 +72,13 @@ socket.on('redimensionar-elemento', ({ id, width, height }) => {
     }
 });
 
-socket.on('editar-elemento', ({ id, conteudo }) => {
+socket.on('editar-elemento', ({ id, content, color, size, font }) => {
     const el = document.querySelector(`[data-id="${id}"]`);
     if (el && el.dataset.type === 'texto') {
-        el.textContent = conteudo;
+        el.textContent = content;
+        el.style.color = color;
+        el.style.fontSize = size;
+        el.style.fontFamily = font;
     }
 });
 

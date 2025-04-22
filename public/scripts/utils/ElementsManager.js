@@ -11,7 +11,6 @@ export class ElementManager{
 
         if (type === 'texto') {
             el.textContent = content;
-            el.appendChild(elTexto);
         } else if (type === 'imagem') {
             const img = document.createElement('img');
             img.src = content;
@@ -145,15 +144,51 @@ export class ElementManager{
 
         if (type === 'texto') {
             const elTexto = this.createTextElemnt(content);
+            const editor = this.createTextEditor();
+            editor.style.display = 'none';
+            document.body.appendChild(editor);
+        
             elTexto.addEventListener('dblclick', () => {
-                const novoTexto = prompt('Novo texto:', content);
-                if (novoTexto !== null) {
+                const input = editor.querySelector('input[type="text"]');
+                const colorInput = editor.querySelector('input[type="color"]');
+                const fontSelect = editor.querySelector('select');
+                const sizeInput = editor.querySelector('input[type="number"]');
+        
+                input.value = elTexto.textContent;
+                colorInput.value = elTexto.style.color || '#000000';
+                fontSelect.value = elTexto.style.fontFamily || 'Arial';
+                sizeInput.value = parseInt(elTexto.style.fontSize) || 16;
+        
+                editor.style.display = 'block';
+        
+                const rect = elTexto.getBoundingClientRect();
+                editor.style.top = `${rect.top + window.scrollY + 20}px`;
+                editor.style.left = `${rect.left + window.scrollX}px`;
+        
+                const saveBtn = editor.querySelector('button');
+                saveBtn.onclick = () => {
+                    const novoTexto = input.value;
+                    const novaCor = colorInput.value;
+                    const novaFonte = fontSelect.value;
+                    const novoSize = `${sizeInput.value}px`;
+        
                     elTexto.textContent = novoTexto;
-                    socket.emit('editar-elemento', { id, content: novoTexto, 
-                                                    color: elTexto.style.color, 
-                                                    size: elTexto.style.fontSize});
-                }
+                    elTexto.style.color = novaCor;
+                    elTexto.style.fontFamily = novaFonte;
+                    elTexto.style.fontSize = novoSize;
+        
+                    editor.style.display = 'none';
+        
+                    socket.emit('editar-elemento', {
+                        id,
+                        content: novoTexto,
+                        color: novaCor,
+                        font: novaFonte,
+                        size: novoSize,
+                    });
+                };
             });
+        
             el.appendChild(elTexto);
         } else if (type === 'imagem') {
             const img = this.createImgElemnt(content);
@@ -211,4 +246,60 @@ export class ElementManager{
         apagadorVisual.style.display = 'none'; // Começa invisível
         return apagadorVisual;
     }
+
+    createTextEditor = () => {
+        const editor = document.createElement('div');
+        editor.style.position = 'absolute';
+        editor.style.height = 'auto';
+        editor.style.width = '300px';
+        editor.style.backgroundColor = 'lightgray';
+        editor.style.top = '40%';
+        editor.style.left = '40%';
+        editor.style.padding = '10px';
+        editor.style.display = 'flex';
+        editor.style.flexDirection = 'column';
+        editor.style.gap = '10px';
+        editor.style.zIndex = '999';
+    
+        // Campo de texto
+        const editText = document.createElement('input');
+        editText.type = 'text';
+        editText.placeholder = 'Escreva o novo texto';
+    
+        // Dropdown de fontes
+        const editFont = document.createElement('select');
+        const fonts = ['Arial', 'Verdana', 'Times New Roman', 'Courier New', 'Georgia'];
+        fonts.forEach(font => {
+            const option = document.createElement('option');
+            option.value = font;
+            option.textContent = font;
+            editFont.appendChild(option);
+        });
+    
+        // Tamanho da fonte
+        const editSize = document.createElement('input');
+        editSize.type = 'number';
+        editSize.placeholder = 'Tamanho da fonte (px)';
+        editSize.min = 8;
+        editSize.max = 100;
+    
+        // Picker de cor
+        const editColor = document.createElement('input');
+        editColor.type = 'color';
+    
+        // Botão de salvar
+        const saveBtn = document.createElement('button');
+        saveBtn.textContent = 'Salvar';
+    
+        // Adiciona tudo ao editor
+        editor.appendChild(editText);
+        editor.appendChild(editFont);
+        editor.appendChild(editSize);
+        editor.appendChild(editColor);
+        editor.appendChild(saveBtn);
+    
+        return editor;
+    };
+    
+    
 }
