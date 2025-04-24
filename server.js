@@ -101,14 +101,16 @@ io.on('connection', (socket) => {
   });
 
   socket.on('ocultar-elemento', ({ id }) => {
-    socket.broadcast.emit('ocultar-elemento', { id });
+    socket.to(userId).emit('ocultar-elemento', { id });
   });
   
   socket.on('mostrar-elemento', ({ id }) => {
-    socket.broadcast.emit('mostrar-elemento', { id });
+    socket.to(userId).emit('mostrar-elemento', { id });
   });
   
-
+  socket.on('apagar-tudo', () => {
+    socket.to(userId).emit('apagar-tudo');
+  });
 
 });
 app.get('/editor', (req, res) => {

@@ -19,13 +19,9 @@ export class ElementManager{
             img.style.height = '100%';
             el.appendChild(img);
         } else if (type === 'video') {
-            const video = document.createElement('video');
-            video.src = content;
-            video.controls = true;
-            video.style.width = '100%';
-            video.style.height = '100%';
+            const video = this.createVideoElement(content, true);
             el.appendChild(video);
-        }
+            }
         return el;
     }
     
@@ -51,28 +47,8 @@ export class ElementManager{
         };
         el.appendChild(deleteBtn);
         
-        // Hide button
-        const toggleVisibilityBtn = document.createElement('button');
-        toggleVisibilityBtn.className = 'hide';
-        toggleVisibilityBtn.innerText = '👁';
-        let ocultoParaOutros = false;
-
-        toggleVisibilityBtn.onclick = () => {
-            ocultoParaOutros = !ocultoParaOutros;
-
-            if (ocultoParaOutros) {
-                el.classList.add('hided');
-                el.style.opacity = '0.5';
-                toggleVisibilityBtn.innerText = '🚫';
-                socket.emit('ocultar-elemento', { id });
-            } else {
-                el.classList.remove('hided');
-                el.style.opacity = '1';
-                toggleVisibilityBtn.innerText = '👁';
-                socket.emit('mostrar-elemento', { id });
-            }
-        };
-
+        
+        const toggleVisibilityBtn = this.createVisibilityButton(el, socket, id);
         el._toggleVisibilityBtn = toggleVisibilityBtn;
         el.appendChild(toggleVisibilityBtn);
 
@@ -97,6 +73,7 @@ export class ElementManager{
             top: parseInt(el.style.top, 10),
             });
         };
+
         const stopMove = () => {
             document.removeEventListener('mousemove', moveElement);
             document.removeEventListener('mouseup', stopMove);
@@ -104,6 +81,8 @@ export class ElementManager{
         document.addEventListener('mousemove', moveElement);
         document.addEventListener('mouseup', stopMove);
         };
+
+
         // Resizing functionality
         resizer.onmousedown = (e) => {
         isResizing = true;
@@ -195,7 +174,7 @@ export class ElementManager{
             const img = this.createImgElemnt(content);
             el.appendChild(img);
         } else if (type === 'video') {
-        const video = this.createVideoElemnt(content);
+        const video = this.createVideoElement(content);
         el.appendChild(video);
         }
 
@@ -225,14 +204,42 @@ export class ElementManager{
         return img;
     }
 
-    createVideoElemnt = (url) => {
-        const video = document.createElement('video');
-        video.src = url;
-        video.controls = true;
-        video.style.width = '100%';
-        video.style.height = '100%';
-        return video;
+    createVideoElement = (url, autoplay = false) => {
+        const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
+        
+        if (isYouTube) {
+            // Extrai o ID do vídeo
+            let videoId;
+            const youtubeRegex = /(?:youtube\.com\/.*v=|youtu\.be\/)([^&]+)/;
+            const match = url.match(youtubeRegex);
+            if (match && match[1]) {
+                videoId = match[1];
+            } else {
+                console.error("URL do YouTube inválida.");
+                return null;
+            }
+
+            // Cria o iframe
+            const iframe = document.createElement('iframe');
+            iframe.id = `yt-player-${videoId}`;
+
+            iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=${autoplay ? 1 : 0}&controls=1&muted=1`;
+            iframe.width = '100%';
+            iframe.height = '100%';
+            iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+            iframe.allowFullscreen = true;
+            return iframe;
+        } else {
+            // Assume que é um arquivo de vídeo direto
+            const video = document.createElement('video');
+            video.src = url;
+            video.controls = true;
+            video.style.width = '100%';
+            video.style.height = '100%';
+            return video;
+        }
     }
+
 
     createEraser = () =>{
         // Cria o elemento da "bola" do apagador
@@ -302,5 +309,28 @@ export class ElementManager{
         return editor;
     };
     
-    
+    createVisibilityButton (el, socket, id){
+        // Hide button
+        const toggleVisibilityBtn = document.createElement('button');
+        toggleVisibilityBtn.className = 'hide';
+        toggleVisibilityBtn.innerText = '👁';
+        let ocultoParaOutros = false;
+
+        toggleVisibilityBtn.onclick = () => {
+            ocultoParaOutros = !ocultoParaOutros;
+
+            if (ocultoParaOutros) {
+                el.classList.add('hided');
+                el.style.opacity = '0.5';
+                toggleVisibilityBtn.innerText = '🚫';
+                socket.emit('ocultar-elemento', { id });
+            } else {
+                el.classList.remove('hided');
+                el.style.opacity = '1';
+                toggleVisibilityBtn.innerText = '👁';
+                socket.emit('mostrar-elemento', { id });
+            }
+        };
+        return toggleVisibilityBtn;
+    }
 }
