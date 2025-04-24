@@ -7,7 +7,7 @@ socket.on('connect-erro', (msg) => {
   const path = window.location.pathname;
   window.location.href = path+`?user=${userId}`;
 });
-
+const youtubePlayers = {};
 const area = document.getElementById('area');
 const canvas = document.getElementById('canvas-desenho');
 const ctx = canvas.getContext('2d');
@@ -25,12 +25,48 @@ function ajustarCanvas() {
 
 ajustarCanvas();
 window.addEventListener('resize', ajustarCanvas);
-
 // Função para criar elementos (texto, imagem, vídeo)
 const criarElemento = (data) => {
     const el = elementManager.createElement(data, socket);
     area.appendChild(el);
+
+    if (el.dataset.type === 'video') {
+        setTimeout(() => {
+            playYouTubeById(el.dataset.id);
+        }, 2000); // espera um pouquinho para garantir que o iframe esteja no DOM
+    }
 }
+
+function playYouTubeById(dataId, retries = 10) {
+    const iframe = document.querySelector(`[data-id="${dataId}"] iframe`);
+    if (!iframe) return;
+
+    const iframeId = iframe.id;
+    const player = youtubePlayers[iframeId];
+
+    if (player && typeof player.playVideo === 'function') {
+        player.playVideo();
+    } else if (retries > 0) {
+        // Tenta novamente após 300ms
+        setTimeout(() => playYouTubeById(dataId, retries - 1), 300);
+    } else {
+        console.warn(`Player YouTube não disponível para ${iframeId}`);
+    }
+}
+
+window.onYouTubeIframeAPIReady = () => {
+    document.querySelectorAll('iframe[src*="youtube.com/embed"]').forEach(iframe => {
+        const id = iframe.id;
+        if (!id) return;
+
+        youtubePlayers[id] = new YT.Player(id, {
+            events: {
+                onReady: () => console.log(`Player ${id} pronto.`)
+            }
+        });
+    });
+};
+
 
 // WebSocket para sincronizar eventos entre os clientes
 socket.on('estado-inicial', (elementos) => {
@@ -91,7 +127,7 @@ socket.on('remover-elemento', ({ id }) => {
 function apagarDesenho(x, y) {
     ctx.globalCompositeOperation = 'destination-out'; 
     ctx.beginPath();
-    ctx.arc(x, y, 10, 0, Math.PI * 2); 
+    ctx.arc(x, y, 15, 0, Math.PI * 2); 
     ctx.fill();
     ctx.globalCompositeOperation = 'source-over'; 
 }
@@ -141,3 +177,8 @@ socket.on('remover-tudo', () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 });
   
+socket.on('apagar-tudo', () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    primeiroPonto = true;
+  }
+);

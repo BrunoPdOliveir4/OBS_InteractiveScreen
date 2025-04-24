@@ -12,6 +12,7 @@ const apagadorVisual = elementManager.createEraser();
 document.body.appendChild(apagadorVisual);
 
 const area = document.getElementById('area');
+const btnEraseAll = document.getElementById('btn-erase-all');
 const btnTexto = document.getElementById('btn-add-texto');
 const btnImg = document.getElementById('btn-add-img');
 const btnVideo = document.getElementById('btn-add-video');
@@ -136,18 +137,20 @@ canvas.addEventListener('mouseleave', () => {
 });
 
 
+btnVideo.addEventListener('click', () => {
+  const url = prompt('URL do vídeo:');
+  if (url) {
+    const id = 'el-' + Date.now();
+    const data = { id, type: 'video', content: url, width: 320, height: 240 };
+    criarElemento(data);
+    socket.emit('novo-elemento', data);
+  }
+});
 
-
-// Evento de adicionar vídeo
-//btnVideo.addEventListener('click', () => {
-//  const url = prompt('URL do vídeo:');
-//  if (url) {
-//    const id = 'el-' + Date.now();
-//    const data = { id, type: 'video', content: url, width: 320, height: 240 };
-//    criarElemento(data);
-//    socket.emit('novo-elemento', data);
-//  }
-//});
+btnEraseAll.addEventListener('click', () => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  socket.emit('apagar-tudo');
+});
 
 // Eventos para criar texto e imagem
 btnTexto.addEventListener('click', () => {
@@ -202,7 +205,7 @@ socket.on('apagar', ({ x, y }) => {
   if (modoErase) return;
   ctx.globalCompositeOperation = 'destination-out'; 
   ctx.beginPath();
-  ctx.arc(x, y, 10, 0, Math.PI * 2); 
+  ctx.arc(x, y, 15, 0, Math.PI * 2); 
   ctx.fill();
   ctx.globalCompositeOperation = 'source-over'; 
 });
@@ -248,6 +251,12 @@ socket.on('remover-tudo', () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   primeiroPonto = true;
 });
+
+socket.on('apagar-tudo', () => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  primeiroPonto = true;
+}
+);
 
 socket.on('ocultar-elemento', ({ id }) => {
   const el = document.querySelector(`[data-id="${id}"]`);
