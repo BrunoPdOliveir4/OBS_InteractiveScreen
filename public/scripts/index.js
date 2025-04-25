@@ -1,5 +1,6 @@
 import { ElementManager } from './utils/ElementsManager.js';
 const elementManager = new ElementManager();
+const pathname = window.location.pathname + window.location.search;
 
 const socket = io();
 socket.on('connect-erro', (msg) => {
@@ -12,6 +13,17 @@ const apagadorVisual = elementManager.createEraser();
 document.body.appendChild(apagadorVisual);
 
 const area = document.getElementById('area');
+const canal = pathname.split('user=')[1];
+console.log(canal);
+const iframe = document.createElement('iframe');
+  iframe.src = `https://player.twitch.tv/?channel=${canal}&parent=obs-interactivescreen.onrender.com`;
+  iframe.width = '1920px';
+  iframe.height = '1080px';
+  iframe.allowFullscreen = true;
+  iframe.style.pointerEvents = 'none';
+  iframe.style.opacity = '0.5';
+area.appendChild(iframe);
+
 const btnEraseAll = document.getElementById('btn-erase-all');
 const btnTexto = document.getElementById('btn-add-texto');
 const btnImg = document.getElementById('btn-add-img');
