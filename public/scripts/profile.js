@@ -15,19 +15,20 @@ if (!profileId) {
         document.getElementById('display-name').textContent = `Nome de exibição: ${data.display_name}`;
         document.getElementById('email').textContent = `Email: ${data.email}`;
         document.getElementById('description').textContent = `Descrição: ${data.description}`;
-      }
+      
+        document.getElementById('editor-screen').addEventListener('click', () => {
+            window.location.href = `/editor?user=${data.login}`;
+        }
+        );
+        
+        document.getElementById('show-screen').addEventListener('click', () => {
+            window.location.href = `/show?user=${data.login}`;
+        }
+        );
+    }
     })
     .catch(() => {
       document.getElementById('profile-info').textContent = 'Erro ao carregar o perfil.';
     });
 }
 
-document.getElementById('editor-screen').addEventListener('click', () => {
-    window.location.href = `/editor?user=${userData.login}`;
-}
-);
-
-document.getElementById('show-screen').addEventListener('click', () => {
-    window.location.href = `/show?user=${userData.login}`;
-}
-);
