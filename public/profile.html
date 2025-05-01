@@ -3,62 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Perfil Twitch</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 600px;
-      margin: 50px auto;
-      padding: 20px;
-      background-color: white;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    .profile-info {
-      text-align: center;
-    }
-    .profile-info img {
-      border-radius: 50%;
-      margin-bottom: 20px;
-    }
-    .profile-info h1 {
-      margin: 0;
-      font-size: 2em;
-      color: #3b3b3b;
-    }
-    .profile-info p {
-      color: #666;
-      font-size: 1.2em;
-    }
-    .error-message {
-      color: red;
-      text-align: center;
-    }
-  </style>
+  <title>Perfil do Usuário</title>
+  <link rel="stylesheet" href="./styles/profile.css">
 </head>
 <body>
+  <h1>Perfil do Usuário</h1>
 
-<div class="container">
-  <div class="profile-info">
-    <h1>Carregando perfil...</h1>
-    <img id="profile-image" src="" alt="Perfil" width="150" />
-    <p id="login">Login: <strong>Carregando...</strong></p>
-    <p id="display-name">Nome de exibição: <strong>Carregando...</strong></p>
-    <p id="email">Email: <strong>Carregando...</strong></p>
-    <p id="description">Descrição: <strong>Carregando...</strong></p>
+  <div id="profile-container">
+    <img id="profile-image" src="" alt="Imagem do perfil" />
+    <div id="profile-info">
+      <p id="login"></p>
+      <p id="display-name"></p>
+      <p id="email"></p>
+      <p id="description"></p>
+    </div>
   </div>
 
-  <div class="error-message" id="error-message"></div>
-</div>
+  <button id="editor-screen">Tela de editor</button>
+  <button id="show-screen">Tela do Streamer</button>
 
-<script>
-  
-</script>
-
+  <script type="module" src="./scripts/profile.js"></script>
 </body>
 </html>
