@@ -19,6 +19,14 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
+app.get('/get-oauth-info', (req, res) => {
+  res.json({
+    clientId: process.env.TWITCH_ID,
+    redirectUri: process.env.REDIRECT_URI
+  });
+});
+
+
 app.use(express.static(path.join(__dirname, 'public')));
 const allowedUsers = [process.env.TESTER1, 
   process.env.TESTER2, process.env.TESTER3, 
