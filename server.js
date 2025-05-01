@@ -49,7 +49,6 @@ io.on('connection', (socket) => {
   if (!userId || !allowedUsers.includes(userId)) {
     socket.emit('connect-erro', 'Acesso não autorizado');
     socket.disconnect();
-    return res.redirect('/login');
     return;
   }
 
