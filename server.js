@@ -157,7 +157,7 @@ app.get('/profile', async (req, res) => {
     });
 
     const { access_token } = tokenResponse.data;
-
+    console.log('Access Token:', access_token);
     const userResponse = await axios.get('https://api.twitch.tv/helix/users', {
       headers: {
         'Authorization': `Bearer ${access_token}`,
