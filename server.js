@@ -11,6 +11,14 @@ const io = socketIo(server);
 
 require('dotenv').config();
 
+app.get('/', (req, res) => {
+  res.redirect('/login');
+});
+
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 const allowedUsers = [process.env.TESTER1, 
   process.env.TESTER2, process.env.TESTER3, 
@@ -120,7 +128,38 @@ app.get('/editor', (req, res) => {
 app.get('/show', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'show.html'));
 });
-  
+
+app.get('/profile', (req, res) => {
+  res.json({
+    clientId: process.env.TWITCH_ID,
+    redirectUri: process.env.REDIRECT_URI
+  });
+});
+
+app.post('/get-token', async (req, res) => {
+  const { code } = req.body;
+
+  if (!code) {
+    return res.status(400).json({ error: 'Código de autorização não fornecido' });
+  }
+
+  try {
+    const tokenResponse = await axios.post('https://id.twitch.tv/oauth2/token', null, {
+      params: {
+        client_id: clientId,
+        client_secret: clientSecret,
+        code: code,
+        grant_type: 'authorization_code',
+        redirect_uri: redirectUri
+      }
+    });
+
+    res.json(tokenResponse.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao obter o token de acesso' });
+  }
+});
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
