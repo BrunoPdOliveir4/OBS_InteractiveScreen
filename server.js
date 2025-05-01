@@ -49,6 +49,7 @@ io.on('connection', (socket) => {
   if (!userId || !allowedUsers.includes(userId)) {
     socket.emit('connect-erro', 'Acesso não autorizado');
     socket.disconnect();
+    return res.redirect('/login');
     return;
   }
 
@@ -183,7 +184,7 @@ app.get('/profile', async (req, res) => {
 app.get('/api/profile/:id', (req, res) => {
   const userData = userCache.get(req.params.id);
   if (!userData) {
-    return res.status(404).json({ error: 'Perfil não encontrado ou expirado' });
+    return res.redirect('/login');
   }
   res.json(userData);
 });
