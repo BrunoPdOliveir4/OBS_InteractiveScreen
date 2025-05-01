@@ -138,11 +138,33 @@ app.get('/show', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'show.html'));
 });
 
-app.get('/profile', (req, res) => {
-  res.json({
-    clientId: process.env.TWITCH_ID,
-    redirectUri: process.env.REDIRECT_URI
-  });
+app.get('/profile', async (req, res) => {
+  const { access_token } = req.query; 
+  if (!access_token) {
+    return res.status(400).json({ error: 'Token de acesso não fornecido' });
+  }
+
+  try {
+    const userResponse = await axios.get('https://api.twitch.tv/helix/users', {
+      headers: {
+        'Authorization': `Bearer ${access_token}`,
+        'Client-Id': process.env.TWITCH_ID,
+      }
+    });
+
+    const userData = userResponse.data.data[0]; 
+    res.json({
+      id: userData.id,
+      login: userData.login,
+      displayName: userData.display_name,
+      email: userData.email,
+      profileImageUrl: userData.profile_image_url,
+      description: userData.description,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao obter informações do perfil' });
+  }
 });
 
 app.post('/get-token', async (req, res) => {
@@ -163,7 +185,8 @@ app.post('/get-token', async (req, res) => {
       }
     });
 
-    res.json(tokenResponse.data);
+    const { access_token } = tokenResponse.data;
+    res.redirect(`/profile?access_token=${access_token}`);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erro ao obter o token de acesso' });
