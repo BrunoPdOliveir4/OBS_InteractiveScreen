@@ -5,9 +5,7 @@ const pathname = window.location.pathname + window.location.search;
 const socket = io();
 socket.on('connect-erro', (msg) => {
   alert(msg);
-  const userId = prompt('Digite seu ID de usuário:');
-  const path = window.location.pathname;
-  window.location.href = path+`?user=${userId}`;
+  window.location.href = '/login';
 });
 const apagadorVisual = elementManager.createEraser();
 document.body.appendChild(apagadorVisual);

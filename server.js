@@ -4,12 +4,32 @@ const path = require('path');
 const socketIo = require('socket.io');
 const url = require('url');
 const RoomMemo = require('./src/RoomMemoization.js');
+const axios = require('axios');
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
 require('dotenv').config();
+
+const { v4: uuidv4 } = require('uuid');
+const userCache = new Map();
+
+app.get('/', (req, res) => {
+  res.redirect('/login');
+});
+
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.get('/get-oauth-info', (req, res) => {
+  res.json({
+    clientId: process.env.TWITCH_ID,
+    redirectUri: process.env.REDIRECT_URI
+  });
+});
+
 
 app.use(express.static(path.join(__dirname, 'public')));
 const allowedUsers = [process.env.TESTER1, 
@@ -120,7 +140,80 @@ app.get('/editor', (req, res) => {
 app.get('/show', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'show.html'));
 });
-  
+
+app.get('/profile', async (req, res) => {
+  const { code } = req.query; 
+
+  if (!code) {
+    return res.status(400).json({ error: 'Código de autorização não fornecido' });
+  }
+
+  try {
+    const tokenResponse = await axios.post('https://id.twitch.tv/oauth2/token', null, {
+      params: {
+        client_id: process.env.TWITCH_ID,
+        client_secret: process.env.TWITCH_SECRET,
+        code: code,
+        grant_type: 'authorization_code',
+        redirect_uri: process.env.REDIRECT_URI // Make sure this matches the URI used in the OAuth flow
+      }
+    });
+
+    const { access_token } = tokenResponse.data;
+    const userResponse = await axios.get('https://api.twitch.tv/helix/users', {
+      headers: {
+        'Authorization': `Bearer ${access_token}`,
+        'Client-Id': process.env.TWITCH_ID,
+      }
+    });
+
+    const userData = userResponse.data.data[0]; 
+
+    const tempId = uuidv4();
+    userCache.set(tempId, userData);
+    
+    setTimeout(() => userCache.delete(tempId), 5 * 60 * 1000);
+    res.redirect(`/profile.html?id=${tempId}`);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao obter informações do perfil' });
+  }
+});
+app.get('/api/profile/:id', (req, res) => {
+  const userData = userCache.get(req.params.id);
+  if (!userData) {
+    return res.redirect('/login');
+  }
+  res.json(userData);
+});
+
+
+app.post('/get-token', async (req, res) => {
+  const { code } = req.body;
+
+  if (!code) {
+    return res.status(400).json({ error: 'Código de autorização não fornecido' });
+  }
+
+  try {
+    const tokenResponse = await axios.post('https://id.twitch.tv/oauth2/token', null, {
+      params: {
+        client_id: process.env.TWITCH_ID,
+        client_secret: process.env.TWITCH_SECRET,
+        code: code,
+        grant_type: 'authorization_code',
+        redirect_uri: process.env.REDIRECT_URI
+      }
+    });
+
+    const { access_token } = tokenResponse.data;
+    res.redirect(`/profile?access_token=${access_token}`);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao obter o token de acesso' });
+  }
+});
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
