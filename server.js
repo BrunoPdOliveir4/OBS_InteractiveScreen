@@ -139,12 +139,25 @@ app.get('/show', (req, res) => {
 });
 
 app.get('/profile', async (req, res) => {
-  const { access_token } = req.query; 
-  if (!access_token) {
-    return res.status(400).json({ error: 'Token de acesso não fornecido' });
+  const { code } = req.query; 
+
+  if (!code) {
+    return res.status(400).json({ error: 'Código de autorização não fornecido' });
   }
 
   try {
+    const tokenResponse = await axios.post('https://id.twitch.tv/oauth2/token', null, {
+      params: {
+        client_id: process.env.TWITCH_ID,
+        client_secret: process.env.TWITCH_SECRET,
+        code: code,
+        grant_type: 'authorization_code',
+        redirect_uri: process.env.REDIRECT_URI // Make sure this matches the URI used in the OAuth flow
+      }
+    });
+
+    const { access_token } = tokenResponse.data;
+
     const userResponse = await axios.get('https://api.twitch.tv/helix/users', {
       headers: {
         'Authorization': `Bearer ${access_token}`,
@@ -153,6 +166,7 @@ app.get('/profile', async (req, res) => {
     });
 
     const userData = userResponse.data.data[0]; 
+
     res.json({
       id: userData.id,
       login: userData.login,
@@ -161,11 +175,13 @@ app.get('/profile', async (req, res) => {
       profileImageUrl: userData.profile_image_url,
       description: userData.description,
     });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erro ao obter informações do perfil' });
   }
 });
+
 
 app.post('/get-token', async (req, res) => {
   const { code } = req.body;

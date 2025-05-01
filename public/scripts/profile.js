@@ -1,10 +1,14 @@
 function getAccessToken() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('access_token');
+    const hash = document.location.hash;
+    if (hash) {
+        const params = new URLSearchParams(hash.substring(1)); // Remove the '#' from the fragment
+        return params.get('access_token');
+    }
+
 }
 
-  const accessToken = getAccessToken();
-
+const accessToken = getAccessToken();
+console.log('Access Token:', accessToken);
 if (!accessToken) {
     document.getElementById('error-message').textContent = 'Token de acesso não encontrado. Por favor, faça login novamente.';
 } else {
