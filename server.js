@@ -12,6 +12,9 @@ const io = socketIo(server);
 
 require('dotenv').config();
 
+const { v4: uuidv4 } = require('uuid');
+const userCache = new Map();
+
 app.get('/', (req, res) => {
   res.redirect('/login');
 });
@@ -166,19 +169,23 @@ app.get('/profile', async (req, res) => {
 
     const userData = userResponse.data.data[0]; 
 
-    res.render('profile', {
-      id: userData.id,
-      login: userData.login,
-      displayName: userData.display_name,
-      email: userData.email,
-      profileImageUrl: userData.profile_image_url,
-      description: userData.description
-    });
+    const tempId = uuidv4();
+    userCache.set(tempId, userData);
+    
+    setTimeout(() => userCache.delete(tempId), 5 * 60 * 1000);
+    res.redirect(`/profile.html?id=${tempId}`);
 
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erro ao obter informações do perfil' });
   }
+});
+app.get('/api/profile/:id', (req, res) => {
+  const userData = userCache.get(req.params.id);
+  if (!userData) {
+    return res.status(404).json({ error: 'Perfil não encontrado ou expirado' });
+  }
+  res.json(userData);
 });
 
 
