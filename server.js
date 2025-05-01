@@ -4,6 +4,7 @@ const path = require('path');
 const socketIo = require('socket.io');
 const url = require('url');
 const RoomMemo = require('./src/RoomMemoization.js');
+const axios = require('axios');
 
 const app = express();
 const server = http.createServer(app);
@@ -154,11 +155,11 @@ app.post('/get-token', async (req, res) => {
   try {
     const tokenResponse = await axios.post('https://id.twitch.tv/oauth2/token', null, {
       params: {
-        client_id: clientId,
-        client_secret: clientSecret,
+        client_id: process.env.TWITCH_ID,
+        client_secret: process.env.TWITCH_SECRET,
         code: code,
         grant_type: 'authorization_code',
-        redirect_uri: redirectUri
+        redirect_uri: process.env.REDIRECT_URI
       }
     });
 
