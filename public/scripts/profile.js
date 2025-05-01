@@ -12,8 +12,7 @@ if (!profileId) {
       } else {
         document.getElementById('profile-image').src = data.profile_image_url;
         document.getElementById('login').textContent = `Login: ${data.login}`;
-        document.getElementById('display-name').textContent = `Nome de exibição: ${data.display_name}`;
-        document.getElementById('email').textContent = `Email: ${data.email}`;
+        document.getElementById('display-name').textContent = `${data.display_name}`;
         document.getElementById('description').textContent = `Descrição: ${data.description}`;
       
         document.getElementById('editor-screen').addEventListener('click', () => {

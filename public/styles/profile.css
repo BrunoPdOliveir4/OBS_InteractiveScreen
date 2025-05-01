@@ -1,98 +1,61 @@
-/* Define a paleta de cores inspirada no Twitch */
-:root {
-    --primary-color: #9146FF; /* Roxo Twitch */
-    --secondary-color: #9146FF33; /* Roxo transparente */
-    --text-color: #E1E1E1; /* Cor clara para o texto */
-    --background-color: #1A1A1B; /* Cor de fundo escura */
-    --button-hover-color: #6F42C1; /* Roxo Twitch mais claro */
-}
-
-/* Estilo global */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: var(--background-color);
-    color: var(--text-color);
     display: flex;
-    flex-direction: column;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     height: 100vh;
+    flex-direction: column;
+    margin: 0;
+    background-color: #0e0e10;
+    color: #efeff1;
+    background-image: 
+        url('/images/twitch-logo.png'),
+        url('/images/obs-logo.png');
+    background-repeat: no-repeat, no-repeat;
+    background-position: top left, bottom right;
+    background-size: 150px, 150px;
+    background-blend-mode: overlay;
+    opacity: 0.95;
 }
 
-/* Título */
-h1 {
-    color: var(--primary-color);
-    font-size: 3rem;
-    margin-bottom: 20px;
-}
-
-/* Container principal do perfil */
 #profile-container {
-    background-color: #2D2D2F;
+    background-color: #18181b;
+    padding: 30px;
     border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
     max-width: 600px;
-    width: 100%;
-    text-align: center;
 }
 
-/* Imagem do perfil */
 #profile-image {
-    width: 150px;
-    height: 150px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
-    border: 4px solid var(--primary-color);
-    margin-bottom: 20px;
-}
-
-/* Informações do perfil */
-#profile-info {
-    margin-top: 10px;
-    color: var(--text-color);
+    object-fit: cover;
+    border: 3px solid #9146FF;
 }
 
 #profile-info p {
-    font-size: 1.2rem;
     margin: 5px 0;
+    font-size: 16px;
+    line-height: 1.4;
 }
 
-/* Botões de navegação */
 button {
-    background-color: var(--primary-color);
-    color: #fff;
     padding: 10px 20px;
-    font-size: 1.1rem;
+    font-size: 16px;
+    background-color: #9146FF;
+    color: white;
     border: none;
     border-radius: 8px;
+    margin-top: 20px;
     cursor: pointer;
-    margin: 10px;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s ease;
 }
 
 button:hover {
-    background-color: var(--button-hover-color);
-}
-
-/* Adicionar estilo para dispositivos móveis */
-@media screen and (max-width: 768px) {
-    body {
-        font-size: 1.2rem;
-        padding: 10px;
-    }
-
-    #profile-container {
-        width: 90%;
-    }
-
-    #profile-info p {
-        font-size: 1rem;
-    }
-
-    button {
-        font-size: 1rem;
-        padding: 8px 16px;
-    }
+    background-color: #772CE8;
 }
