@@ -4,7 +4,6 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    flex-direction: column;
     margin: 0;
     background-color: #0e0e10;
     color: #efeff1;
@@ -58,4 +57,30 @@ button {
 
 button:hover {
     background-color: #772CE8;
+}
+
+#whitelist {
+    border: 1px solid #9146FF;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #18181b;
+    color: white;
+
+    input {
+        margin-right: 10px;
+        padding: 5px;
+        border-radius: 4px;
+        border: 1px solid #9146FF;
+        background-color: #0e0e10;
+        color: white;
+    }
+    #whitelist-list {
+        margin-top: 10px;
+        max-height: 200px;
+        overflow-y: auto;
+        background-color: #18181b;
+        border-radius: 8px;
+        padding: 10px;
+    }
 }

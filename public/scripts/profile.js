@@ -27,6 +27,10 @@ if (!profileId) {
             window.location.href = `/show?user=${data.login}`;
         }
         );
+
+        if(data.whitelist) {
+          document.getElementById('whitelist').textContent = 'Whitelist: Sim';
+        }
     }
     })
     .catch(() => {
