@@ -27,10 +27,82 @@ if (!profileId) {
             window.location.href = `/show?user=${data.login}`;
         }
         );
-
+        //ADD WHITELIST OPTION
+        document.getElementById('addWhitelist-btn').addEventListener('click', () => {
+          const userToAdd = document.getElementById('userToAdd').value;
+          if (userToAdd) {
+            fetch(`/whitelist/${data.login}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ user: userToAdd })
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                const userElement = document.createElement('div');
+                userElement.className = 'whitelist-user';
+                userElement.textContent = userToAdd;
+                const deleteUser = document.createElement('button');
+                deleteUser.textContent = '-';
+                deleteUser.className = 'delete-user';
+                deleteUser.addEventListener('click', () => {
+                  fetch(`/api/delete-whitelist/${data.login}`, {
+                    method: 'DELETE',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ usernameToAdd: userToAdd, tempId: profileId })
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                    if (data.success) {
+                      userElement.remove();
+                    } else {
+                      console.error('Erro ao remover usuário da whitelist:', data.error);
+                    }
+                  });
+                });
+                userElement.appendChild(deleteUser);
+                document.getElementById('whitelist').appendChild(userElement);
+              } else {
+                console.error('Erro ao adicionar usuário à whitelist:', data.error);
+              }
+            });
         if(data.whitelist) {
           console.log(data.whitelist);
-          document.getElementById('whitelist-list').textContent = 'Whitelist: Sim';
+          if(data.whitelist.length > 0) {
+            data.whitelist.forEach(user => {
+              const userElement = document.createElement('div');
+              userElement.className = 'whitelist-user';
+              userElement.textContent = user;
+              const deleteUser = document.createElement('button');
+              deleteUser.textContent = 'X';
+              deleteUser.className = 'delete-user';
+              deleteUser.addEventListener('click', () => {
+                fetch(`/api/delete-whitelist/${data.login}`, {
+                  method: 'DELETE',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ user })
+                })
+                .then(response => response.json())
+                .then(data => {
+                  if (data.success) {
+                    userElement.remove();
+                  } else {
+                    console.error('Erro ao remover usuário da whitelist:', data.error);
+                  }
+                });
+              });
+              userElement.appendChild(deleteUser);
+              document.getElementById('whitelist').appendChild(userElement);
+            });
+          } else {
+            document.getElementById('whitelist').textContent = 'Ainda não há usuários registrados na sua whitelist.';
+          }
         }
     }
     })
@@ -38,5 +110,5 @@ if (!profileId) {
       document.getElementById('profile-info').textContent = 'Erro ao carregar o perfil.';
       window.location.href = '/login';
     });
-}
-
+  }}
+)}

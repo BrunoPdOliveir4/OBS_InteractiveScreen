@@ -259,13 +259,18 @@ app.post('/user/', async (req, res) => {
 });
 
 
-app.post('/whitelist/', async (req, res) => {
-  const { ownerUsername, usernameToAdd } = req.body;
+app.post('/whitelist/:owner', async (req, res) => {
+  const { usernameToAdd, tempId } = req.body;
+  const { owner } = req.params;
+  const ownerUsername = owner;
 
   if (!ownerUsername || !usernameToAdd) {
     return res.status(400).json({ error: 'Both ownerUsername and usernameToAdd are required.' });
   }
 
+  if(ownerUsername !== userCache.get(tempId).login){
+    return res.status(403).json({ error: 'You are not authorized to add users to this whitelist.' });
+  }
   try {
     const owner = await User.findOne({ username: ownerUsername });
 
