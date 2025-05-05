@@ -5,16 +5,25 @@ const socketIo = require('socket.io');
 const url = require('url');
 const RoomMemo = require('./src/RoomMemoization.js');
 const axios = require('axios');
-
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
-
 const User = require('src/User');
-require('dotenv').config();
-
 const { v4: uuidv4 } = require('uuid');
 const userCache = new Map();
+require('dotenv').config();
+
+// DATABASE CONN 
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('🟢 Conectado ao MongoDB'))
+.catch(err => {
+  console.error('❌ Erro ao conectar ao MongoDB:', err.message);
+  process.exit(1);
+});
+
 
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -174,7 +183,7 @@ app.get('/profile', async (req, res) => {
     } else {
       userData.whitelist = user.whitelist;
     }
-    
+
     const userData = userResponse.data.data[0]; 
     userData.access_token = access_token;
     const tempId = uuidv4();
