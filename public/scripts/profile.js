@@ -37,7 +37,7 @@ if (!profileId) {
         }
 
         // Adicionar usuário à whitelist
-        document.getElementById('addWhitelist-btn').addEventListener('click', () => {
+        document.getElementById('addWhitelist-btn').addEventListener('click', async() => {
           const userToAdd = document.getElementById('userToAdd').value;
           if (userToAdd) {
             fetch(`/whitelist/${profileData.login}`, {
@@ -81,7 +81,7 @@ function addWhitelistUserToDOM(username, login, profileId) {
   deleteUser.className = 'delete-user';
   deleteUser.dataset.username = username;
 
-  deleteUser.addEventListener('click', (elmnt) => {
+  deleteUser.addEventListener('click', async(elmnt) => {
     const deleterUname = elmnt.target.dataset.username;
     if (deleterUname === login) {
       alert('Você não pode remover a si mesmo da whitelist.');
