@@ -79,14 +79,20 @@ function addWhitelistUserToDOM(username, login, profileId) {
   const deleteUser = document.createElement('button');
   deleteUser.textContent = '-';
   deleteUser.className = 'delete-user';
+  deleteUser.dataset.username = username;
 
-  deleteUser.addEventListener('click', () => {
+  deleteUser.addEventListener('click', (elmnt) => {
+    const deleterUname = elmnt.target.dataset.username;
+    if (deleterUname === login) {
+      alert('Você não pode remover a si mesmo da whitelist.');
+      return;
+    }
     fetch(`/whitelist/${login}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ usernameToRemove: username, tempId: profileId })
+      body: JSON.stringify({ usernameToRemove: deleterUname, tempId: profileId })
     })
       .then(response => response.json())
       .then(result => {
