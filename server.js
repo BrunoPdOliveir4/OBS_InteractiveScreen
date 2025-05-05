@@ -332,13 +332,13 @@ app.get('/whitelist', async (req, res) => {
   }
 
   try {
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ check });
 
     if (!user) {
       return res.status(404).json({ error: 'Owner user not found.' });
     }
 
-    const isWhitelisted = user.whitelist.includes(check);
+    const isWhitelisted = user.whitelist.includes(username);
     res.status(200).json({ whitelisted: isWhitelisted });
   } catch (err) {
     res.status(500).json({ error: err.message });
