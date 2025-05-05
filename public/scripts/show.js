@@ -1,19 +1,12 @@
 import { ElementManager } from "./utils/ElementsManager.js";
 const elementManager = new ElementManager();
 const socket = io();
-const urlParams = new URLSearchParams(window.location.search);
-const userParam = urlParams.get('user');
-const loggedUser = localStorage.getItem('login');
 
 socket.on('connect-erro', (msg) => {
   alert(msg);
   window.location.href = '/login';
 });
 
-if (!userParam || userParam !== loggedUser) {
-  alert('Acesso não autorizado');
-  window.location.href = '/login';
-}
 const youtubePlayers = {};
 const area = document.getElementById('area');
 const canvas = document.getElementById('canvas-desenho');

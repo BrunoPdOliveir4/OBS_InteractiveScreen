@@ -2,10 +2,6 @@ const container = document.getElementById('container');
 const loginButton = document.getElementById('login-button');
 const errorMessage = document.getElementById('error-message');
 
-loginButton.addEventListener('click', () => {
-    window.location.href = loginUrl;  
-});
-
 const urlParams = new URLSearchParams(window.location.search);
 const code = urlParams.get('code');
 fetch('/get-oauth-info')

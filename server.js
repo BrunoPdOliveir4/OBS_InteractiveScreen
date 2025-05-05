@@ -5,29 +5,34 @@ const socketIo = require('socket.io');
 const url = require('url');
 const RoomMemo = require('./src/RoomMemoization.js');
 const axios = require('axios');
-
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
-
-require('dotenv').config();
-
 const { v4: uuidv4 } = require('uuid');
 const userCache = new Map();
+const mongoose = require('mongoose');
+require('dotenv').config();
+const User = require('./src/User.js');
+
+// DATABASE CONN 
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('🟢 Conectado ao MongoDB'))
+.catch(err => {
+  console.error('❌ Erro ao conectar ao MongoDB:', err.message);
+  process.exit(1);
+});
+
+app.use(express.json());
 
 app.get('/', (req, res) => {
   res.redirect('/login');
 });
-
+ 
 app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
-
-app.get('/get-oauth-info', (req, res) => {
-  res.json({
-    clientId: process.env.TWITCH_ID,
-    redirectUri: process.env.REDIRECT_URI
-  });
 });
 
 
@@ -41,6 +46,8 @@ const allowedUsers = [process.env.TESTER1,
 
 const rooms = new Map();
 const roomMemo = new RoomMemo();
+
+// SOCKET FLOW.
 
 io.on('connection', (socket) => {
   const handshakeUrl = socket.handshake.headers.referer;
@@ -133,6 +140,9 @@ io.on('connection', (socket) => {
   });
 
 });
+
+// APP PAGES FLOW.
+
 app.get('/editor', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 }
@@ -140,6 +150,9 @@ app.get('/editor', (req, res) => {
 app.get('/show', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'show.html'));
 });
+
+
+// OAUTH2 AUTHORIZATION CODE FLOW. TWITCH
 
 app.get('/profile', async (req, res) => {
   const { code } = req.query; 
@@ -155,7 +168,7 @@ app.get('/profile', async (req, res) => {
         client_secret: process.env.TWITCH_SECRET,
         code: code,
         grant_type: 'authorization_code',
-        redirect_uri: process.env.REDIRECT_URI // Make sure this matches the URI used in the OAuth flow
+        redirect_uri: process.env.REDIRECT_URI 
       }
     });
 
@@ -166,12 +179,21 @@ app.get('/profile', async (req, res) => {
         'Client-Id': process.env.TWITCH_ID,
       }
     });
-
-    const userData = userResponse.data.data[0]; 
-
-    const tempId = uuidv4();
-    userCache.set(tempId, userData);
     
+    
+    const userData = userResponse.data.data[0]; 
+    userData.access_token = access_token;
+    const tempId = uuidv4();
+    
+    const user = await User.findOne({ username: userData.login });
+    if (!user) {
+      const newUser = new User({ username: userData.login });
+      await newUser.save();
+    } else {
+      userData.whitelist = user.whitelist;
+    }
+    
+    userCache.set(tempId, userData);
     setTimeout(() => userCache.delete(tempId), 5 * 60 * 1000);
     res.redirect(`/profile.html?id=${tempId}`);
 
@@ -180,6 +202,14 @@ app.get('/profile', async (req, res) => {
     res.status(500).json({ error: 'Erro ao obter informações do perfil' });
   }
 });
+
+app.get('/get-oauth-info', (req, res) => {
+  res.json({
+    clientId: process.env.TWITCH_ID,
+    redirectUri: process.env.REDIRECT_URI
+  });
+});
+
 app.get('/api/profile/:id', (req, res) => {
   const userData = userCache.get(req.params.id);
   if (!userData) {
@@ -214,6 +244,110 @@ app.post('/get-token', async (req, res) => {
     res.status(500).json({ error: 'Erro ao obter o token de acesso' });
   }
 });
+
+// DATABASE INTERACTIONS.
+app.post('/user/', async (req, res) => {
+  const { username } = req.body;
+
+  if (!username) return res.status(400).json({ error: 'Username is required.' });
+
+  try {
+    const newUser = new User({ username });
+    const saved = await newUser.save();
+    res.status(201).json(saved);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+
+app.post('/whitelist/:owner', async (req, res) => {
+  const { usernameToAdd, tempId } = req.body;
+  const { owner } = req.params;
+  const ownerUsername = owner;
+
+  if (!ownerUsername || !usernameToAdd) {
+    return res.status(400).json({ error: 'Both ownerUsername and usernameToAdd are required.' });
+  }
+
+  if(ownerUsername !== userCache.get(tempId).login){
+    return res.status(403).json({ error: 'You are not authorized to add users to this whitelist.' });
+  }
+  try {
+    const owner = await User.findOne({ username: ownerUsername });
+
+    if (!owner) {
+      return res.status(404).json({ error: 'Owner user not found.' });
+    }
+
+    if (!owner.whitelist.includes(usernameToAdd)) {
+      owner.whitelist.push(usernameToAdd);
+      await owner.save();
+    }
+
+    res.status(200).json(owner);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/whitelist/:owner', async (req, res) => {
+  const { usernameToRemove, tempId } = req.body;
+  const { owner } = req.params;
+  const ownerUsername = owner;
+
+  if (!ownerUsername || !usernameToRemove) {
+    return res.status(400).json({ error: 'Both ownerUsername and usernameToRemove are required.' });
+  }
+
+  if(ownerUsername !== userCache.get(tempId).login){
+    return res.status(403).json({ error: 'You are not authorized to remove users from this whitelist.' });
+  }
+
+  if (ownerUsername === usernameToRemove) {
+    return res.status(400).json({ error: 'You cannot remove yourself from the whitelist.' });
+  }
+  try {
+    const owner = await User.findOne({ username: ownerUsername });
+
+    if (!owner) {
+      return res.status(404).json({ error: 'Owner user not found.' });
+    }
+
+    owner.whitelist = owner.whitelist.filter(user => user !== usernameToRemove);
+    await owner.save();
+
+    res.status(200).json(owner);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+);
+
+app.get('/whitelist', async (req, res) => {
+  const { username, check } = req.query;
+
+  if (!username || !check) {
+    return res.status(400).json({ error: 'username and check are required in query.' });
+  }
+
+  try {
+    const user = await User.findOne({ username: check });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Owner user not found.' });
+    }
+
+    const isWhitelisted = user.whitelist.includes(username);
+    res.status(200).json({ whitelisted: isWhitelisted });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+
+// APP LISTEN
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
