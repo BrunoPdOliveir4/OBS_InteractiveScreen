@@ -8,8 +8,8 @@ body {
     background-color: #0e0e10;
     color: #efeff1;
     background-image: 
-        url('/public/images/twitch-logo.png'),
-        url('/public/images/obs-logo.png');
+        url('/twitch-logo'),
+        url('/obs-logo');
     background-repeat: no-repeat, no-repeat;
     background-position: top left, bottom right;
     background-size: 150px, 150px;
@@ -62,7 +62,7 @@ button:hover {
 #whitelist {
     box-shadow: 0 0 12px rgba(0, 0, 0, 0.7);
     font-weight: bold;
-    padding: 10px;
+    padding: 20px;
     border-radius: 8px;
     background-color: #18181b;
     color: white;
@@ -70,10 +70,11 @@ button:hover {
 
     input {
         margin-right: 10px;
-        padding: 10px;
+        padding: 8px;
         border-radius: 4px;
         background-color: #0e0e10;
         color: white;
+        font-size: 16px;
     }
     #whitelist-list {
         margin-top: 10px;
@@ -82,5 +83,7 @@ button:hover {
         border-radius: 8px;
         padding: 10px;
         background:#26262b;
+        font-size: 16px;
+        color: #efeff1;
     }
 }

@@ -345,7 +345,13 @@ app.get('/whitelist', async (req, res) => {
 });
 
 
-
+app.get('/obs-logo', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'img', 'obs-logo.png'));
+}
+);
+app.get('/twitch-logo', (req, res) =>
+  res.sendFile(path.join(__dirname, 'public', 'img', 'twitch-logo.png'))
+);
 
 // APP LISTEN
 
