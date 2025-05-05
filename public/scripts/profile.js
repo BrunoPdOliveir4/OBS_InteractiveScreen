@@ -61,7 +61,7 @@ if (!profileId) {
     })
     .catch(() => {
       document.getElementById('profile-info').textContent = 'Erro ao carregar o perfil.';
-      window.location.href = '/login';
+      console.error('Erro ao carregar o perfil:', error);
     });
 }
 
