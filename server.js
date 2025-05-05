@@ -178,6 +178,11 @@ app.get('/profile', async (req, res) => {
       }
     });
     
+    
+    const userData = userResponse.data.data[0]; 
+    userData.access_token = access_token;
+    const tempId = uuidv4();
+    
     const user = await User.findOne({ username: userData.login });
     if (!user) {
       const newUser = new User({ username: userData.login });
@@ -185,10 +190,7 @@ app.get('/profile', async (req, res) => {
     } else {
       userData.whitelist = user.whitelist;
     }
-
-    const userData = userResponse.data.data[0]; 
-    userData.access_token = access_token;
-    const tempId = uuidv4();
+    
     userCache.set(tempId, userData);
     setTimeout(() => userCache.delete(tempId), 5 * 60 * 1000);
     res.redirect(`/profile.html?id=${tempId}`);
