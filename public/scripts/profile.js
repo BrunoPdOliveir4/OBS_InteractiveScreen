@@ -97,7 +97,6 @@ function addWhitelistUserToDOM(username, login, profileId) {
         }
       });
   });
-
   userElement.appendChild(deleteUser);
-  document.getElementById('whitelist').appendChild(userElement);
+  document.getElementById('whitelist-list').appendChild(userElement);
 }
