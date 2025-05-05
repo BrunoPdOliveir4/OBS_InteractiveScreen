@@ -66,7 +66,7 @@ if (!profileId) {
     })
     .catch(() => {
       document.getElementById('profile-info').textContent = 'Erro ao carregar o perfil.';
-      console.error('Erro ao carregar o perfil:', error);
+      window.location.href = '/login';
     });
 }
 
@@ -96,7 +96,7 @@ function addWhitelistUserToDOM(username, login, profileId) {
     })
       .then(response => response.json())
       .then(result => {
-        if (response.success) {
+        if (result.ok) {
           userElement.remove();
         } else {
           console.error('Erro ao remover usuário da whitelist:', result.error);
