@@ -3,6 +3,7 @@ const profileId = params.get('id');
 
 if (!profileId) {
   document.getElementById('profile-info').textContent = 'ID do perfil não encontrado.';
+  window.location.href = '/login';
 } else {
   fetch(`/api/profile/${profileId}`)
     .then(response => response.json())
@@ -10,6 +11,8 @@ if (!profileId) {
       if (data.error) {
         document.getElementById('profile-info').textContent = data.error;
       } else {
+        localStorage.setItem('access_token', data.access_token);
+        localStorage.setItem('login', data.login);
         document.getElementById('profile-image').src = data.profile_image_url;
         document.getElementById('login').textContent = `Login: ${data.login}`;
         document.getElementById('display-name').textContent = `${data.display_name}`;
@@ -28,6 +31,7 @@ if (!profileId) {
     })
     .catch(() => {
       document.getElementById('profile-info').textContent = 'Erro ao carregar o perfil.';
+      window.location.href = '/login';
     });
 }
 
