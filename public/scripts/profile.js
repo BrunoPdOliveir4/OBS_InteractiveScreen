@@ -94,8 +94,8 @@ function addWhitelistUserToDOM(username, login, profileId) {
       },
       body: JSON.stringify({ usernameToRemove: deleterUname, tempId: profileId })
     })
-      .then(response => response.json())
-      .then(result => {
+      .then(async response => {
+        const result = await response.json();
         if (result.ok) {
           userElement.remove();
         } else {
