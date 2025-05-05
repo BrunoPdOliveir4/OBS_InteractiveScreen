@@ -29,7 +29,8 @@ if (!profileId) {
         );
 
         if(data.whitelist) {
-          document.getElementById('whitelist').textContent = 'Whitelist: Sim';
+          console.log(data.whitelist);
+          document.getElementById('whitelist-list').textContent = 'Whitelist: Sim';
         }
     }
     })

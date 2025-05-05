@@ -60,18 +60,18 @@ button:hover {
 }
 
 #whitelist {
-    border: 1px solid #9146FF;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.7);
     font-weight: bold;
     padding: 10px;
     border-radius: 8px;
     background-color: #18181b;
     color: white;
+    margin-left: 15dvh;
 
     input {
         margin-right: 10px;
-        padding: 5px;
+        padding: 10px;
         border-radius: 4px;
-        border: 1px solid #9146FF;
         background-color: #0e0e10;
         color: white;
     }
@@ -79,8 +79,8 @@ button:hover {
         margin-top: 10px;
         max-height: 200px;
         overflow-y: auto;
-        background-color: #18181b;
         border-radius: 8px;
         padding: 10px;
+        background:#26262b;
     }
 }
