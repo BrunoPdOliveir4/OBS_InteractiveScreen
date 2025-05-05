@@ -13,7 +13,7 @@ socket.on('connect-erro', (msg) => {
 
 if (!userParam || userParam !== loggedUser) {
   try {
-    const response = await fetch(`/api/whitelist?username=${loggedUser}&check=${userParam}`);
+    const response = await fetch(`/whitelist?username=${loggedUser}&check=${userParam}`);
     const result = await response.json();
 
     if (!result.whitelisted) {
