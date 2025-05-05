@@ -11,6 +11,7 @@ const io = socketIo(server);
 const User = require('src/User');
 const { v4: uuidv4 } = require('uuid');
 const userCache = new Map();
+const mongoose = require('mongoose');
 require('dotenv').config();
 
 // DATABASE CONN 
@@ -283,9 +284,21 @@ app.post('/whitelist/', async (req, res) => {
 
 
 app.get('/api/whitelist', async (req, res) => {
+  const { username, check } = req.query;
+
+  if (!username || !check) {
+    return res.status(400).json({ error: 'username and check are required in query.' });
+  }
+
   try {
-    const users = await User.find({username: req.query.username});
-    res.status(200).json(users);
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Owner user not found.' });
+    }
+
+    const isWhitelisted = user.whitelist.includes(check);
+    res.status(200).json({ whitelisted: isWhitelisted });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

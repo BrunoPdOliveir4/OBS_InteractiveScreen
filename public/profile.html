@@ -7,20 +7,30 @@
   <link rel="stylesheet" href="./styles/profile.css">
 </head>
 <body>
-  <h1>Bem vindo!
-      <label id="display-name"></label></h1>
-
-  <div id="profile-container">
-    <img id="profile-image" src="" alt="Imagem do perfil" />
-    <div id="profile-info">
-      <p id="login"></p>
-      <p id="email"></p>
-      <p id="description"></p>
+  <div id="my-infos">
+    <h1>Bem vindo!
+        <label id="display-name"></label></h1>
+  
+    <div id="profile-container">
+      <img id="profile-image" src="" alt="Imagem do perfil" />
+      <div id="profile-info">
+        <p id="login"></p>
+        <p id="email"></p>
+        <p id="description"></p>
+      </div>
     </div>
+  
+    <button id="editor-screen">Tela de editor</button>
+    <button id="show-screen">Tela do Streamer</button>
   </div>
-
-  <button id="editor-screen">Tela de editor</button>
-  <button id="show-screen">Tela do Streamer</button>
+  <div id="whitelist">
+    <div id="addWhitelist">
+      <input type="text" name="" id="">
+      <button>Add</button>
+    </div>
+    <h2>Whitelist:</h2>
+    <div id="whitelist-list"></div>
+  </div>
 
   <script type="module" src="./scripts/profile.js"></script>
 </body>
