@@ -96,7 +96,7 @@ function addWhitelistUserToDOM(username, login, profileId) {
     })
       .then(response => response.json())
       .then(result => {
-        if (result.success) {
+        if (response.success) {
           userElement.remove();
         } else {
           console.error('Erro ao remover usuário da whitelist:', result.error);
