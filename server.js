@@ -8,11 +8,11 @@ const axios = require('axios');
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
-const User = require('./src/User.js');
 const { v4: uuidv4 } = require('uuid');
 const userCache = new Map();
 const mongoose = require('mongoose');
 require('dotenv').config();
+const User = require('./src/User.js');
 
 // DATABASE CONN 
 mongoose.connect(process.env.MONGO_URI, {
