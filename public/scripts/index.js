@@ -1,12 +1,21 @@
 import { ElementManager } from './utils/ElementsManager.js';
 const elementManager = new ElementManager();
 const pathname = window.location.pathname + window.location.search;
+const urlParams = new URLSearchParams(window.location.search);
+const userParam = urlParams.get('user');
+const loggedUser = localStorage.getItem('login');
 
 const socket = io();
 socket.on('connect-erro', (msg) => {
   alert(msg);
   window.location.href = '/login';
 });
+
+if (!userParam || userParam !== loggedUser) {
+  alert('Acesso não autorizado');
+  window.location.href = '/login';
+}
+
 const apagadorVisual = elementManager.createEraser();
 document.body.appendChild(apagadorVisual);
 
