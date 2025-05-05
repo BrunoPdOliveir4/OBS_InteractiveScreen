@@ -45,7 +45,7 @@ if (!profileId) {
               headers: {
                 'Content-Type': 'application/json'
               },
-              body: JSON.stringify({ user: userToAdd, tempId: profileId })
+              body: JSON.stringify({ usernameToAdd: userToAdd, tempId: profileId })
             })
               .then(response => response.json())
               .then(result => {
