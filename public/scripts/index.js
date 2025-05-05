@@ -12,9 +12,21 @@ socket.on('connect-erro', (msg) => {
 });
 
 if (!userParam || userParam !== loggedUser) {
+  try {
+    const response = await fetch(`/api/whitelist?username=${loggedUser}&check=${userParam}`);
+    const result = await response.json();
+
+    if (!result.whitelisted) {
+      console.log(userParam, loggedUser);
+      alert('Acesso não autorizado');
+      window.location.href = '/login';
+      return;
+    }
+  } catch (error) {
   console.log(userParam, loggedUser);
   alert('Acesso não autorizado');
   window.location.href = '/login';
+  }
 }
 
 const apagadorVisual = elementManager.createEraser();
