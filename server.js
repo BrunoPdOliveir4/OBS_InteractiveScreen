@@ -10,25 +10,11 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
+const User = require('src/User');
 require('dotenv').config();
 
 const { v4: uuidv4 } = require('uuid');
 const userCache = new Map();
-
-app.get('/', (req, res) => {
-  res.redirect('/login');
-});
-
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
-
-app.get('/get-oauth-info', (req, res) => {
-  res.json({
-    clientId: process.env.TWITCH_ID,
-    redirectUri: process.env.REDIRECT_URI
-  });
-});
 
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -41,6 +27,8 @@ const allowedUsers = [process.env.TESTER1,
 
 const rooms = new Map();
 const roomMemo = new RoomMemo();
+
+// SOCKET FLOW.
 
 io.on('connection', (socket) => {
   const handshakeUrl = socket.handshake.headers.referer;
@@ -133,6 +121,16 @@ io.on('connection', (socket) => {
   });
 
 });
+
+// APP PAGES FLOW.
+app.get('/', (req, res) => {
+  res.redirect('/login');
+});
+
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
 app.get('/editor', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 }
@@ -140,6 +138,9 @@ app.get('/editor', (req, res) => {
 app.get('/show', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'show.html'));
 });
+
+
+// OAUTH2 AUTHORIZATION CODE FLOW. TWITCH
 
 app.get('/profile', async (req, res) => {
   const { code } = req.query; 
@@ -155,7 +156,7 @@ app.get('/profile', async (req, res) => {
         client_secret: process.env.TWITCH_SECRET,
         code: code,
         grant_type: 'authorization_code',
-        redirect_uri: process.env.REDIRECT_URI // Make sure this matches the URI used in the OAuth flow
+        redirect_uri: process.env.REDIRECT_URI 
       }
     });
 
@@ -166,12 +167,19 @@ app.get('/profile', async (req, res) => {
         'Client-Id': process.env.TWITCH_ID,
       }
     });
-
+    
+    if (!user) {
+      const newUser = new User({ username: userData.login });
+      await newUser.save();
+    } else {
+      userData.whitelist = user.whitelist;
+    }
+    
     const userData = userResponse.data.data[0]; 
-
+    userData.access_token = access_token;
     const tempId = uuidv4();
     userCache.set(tempId, userData);
-    
+    const user = await User.findOne({ username: userData.login });
     setTimeout(() => userCache.delete(tempId), 5 * 60 * 1000);
     res.redirect(`/profile.html?id=${tempId}`);
 
@@ -180,6 +188,14 @@ app.get('/profile', async (req, res) => {
     res.status(500).json({ error: 'Erro ao obter informações do perfil' });
   }
 });
+
+app.get('/get-oauth-info', (req, res) => {
+  res.json({
+    clientId: process.env.TWITCH_ID,
+    redirectUri: process.env.REDIRECT_URI
+  });
+});
+
 app.get('/api/profile/:id', (req, res) => {
   const userData = userCache.get(req.params.id);
   if (!userData) {
@@ -214,6 +230,62 @@ app.post('/get-token', async (req, res) => {
     res.status(500).json({ error: 'Erro ao obter o token de acesso' });
   }
 });
+
+// DATABASE INTERACTIONS.
+app.post('/user/', async (req, res) => {
+  const { username } = req.body;
+
+  if (!username) return res.status(400).json({ error: 'Username is required.' });
+
+  try {
+    const newUser = new User({ username });
+    const saved = await newUser.save();
+    res.status(201).json(saved);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+
+app.post('/whitelist/', async (req, res) => {
+  const { ownerUsername, usernameToAdd } = req.body;
+
+  if (!ownerUsername || !usernameToAdd) {
+    return res.status(400).json({ error: 'Both ownerUsername and usernameToAdd are required.' });
+  }
+
+  try {
+    const owner = await User.findOne({ username: ownerUsername });
+
+    if (!owner) {
+      return res.status(404).json({ error: 'Owner user not found.' });
+    }
+
+    if (!owner.whitelist.includes(usernameToAdd)) {
+      owner.whitelist.push(usernameToAdd);
+      await owner.save();
+    }
+
+    res.status(200).json(owner);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+app.get('/api/whitelist', async (req, res) => {
+  try {
+    const users = await User.find({username: req.query.username});
+    res.status(200).json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+
+
+// APP LISTEN
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
