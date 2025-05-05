@@ -96,11 +96,13 @@ function addWhitelistUserToDOM(username, login, profileId) {
     })
       .then(async response => {
         const result = await response.json();
-        if (result.ok) {
-          userElement.remove();
-        } else {
+        if(response.status !== 200) {
           console.error('Erro ao remover usuário da whitelist:', result.error);
+          alert(result.error);
+          return;
         }
+        userElement.remove();
+        
       });
   });
   userElement.appendChild(deleteUser);
