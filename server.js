@@ -332,7 +332,7 @@ app.get('/whitelist', async (req, res) => {
   }
 
   try {
-    const user = await User.findOne({ check });
+    const user = await User.findOne({ username: check });
 
     if (!user) {
       return res.status(404).json({ error: 'Owner user not found.' });
