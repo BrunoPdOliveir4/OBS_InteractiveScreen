@@ -178,6 +178,7 @@ app.get('/profile', async (req, res) => {
       }
     });
     
+    const user = await User.findOne({ username: userData.login });
     if (!user) {
       const newUser = new User({ username: userData.login });
       await newUser.save();
@@ -189,7 +190,6 @@ app.get('/profile', async (req, res) => {
     userData.access_token = access_token;
     const tempId = uuidv4();
     userCache.set(tempId, userData);
-    const user = await User.findOne({ username: userData.login });
     setTimeout(() => userCache.delete(tempId), 5 * 60 * 1000);
     res.redirect(`/profile.html?id=${tempId}`);
 
