@@ -14,19 +14,25 @@ socket.on('connect-erro', (msg) => {
 if (!userParam || userParam !== loggedUser) {
   try {
     const response = await fetch(`/whitelist?username=${loggedUser}&check=${userParam}`);
+    
+    if (!response.ok) {
+      throw new Error(`Erro HTTP: ${response.status}`);
+    }
+
     const result = await response.json();
 
     if (!result.whitelisted) {
-      console.log(userParam, loggedUser);
+      console.log('Usuário não está na whitelist:', userParam, loggedUser);
       alert('Acesso não autorizado');
       window.location.href = '/login';
     }
   } catch (error) {
-  console.log(userParam, loggedUser);
-  alert('Acesso não autorizado');
-  window.location.href = '/login';
+    console.error('Erro na verificação de whitelist:', error);
+    alert('Acesso não autorizado');
+    window.location.href = '/login';
   }
 }
+
 
 const apagadorVisual = elementManager.createEraser();
 document.body.appendChild(apagadorVisual);
