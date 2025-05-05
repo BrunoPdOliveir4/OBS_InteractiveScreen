@@ -80,14 +80,13 @@ function addWhitelistUserToDOM(username, login, profileId) {
   deleteUser.textContent = '-';
   deleteUser.className = 'delete-user';
 
-  deleteUser.addEventListener('click', (event) => {
-    const userToRemove = event.target.parentElement.textContent.slice(0, -1);
+  deleteUser.addEventListener('click', () => {
     fetch(`/whitelist/${login}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ usernameToRemove: userToRemove, tempId: profileId })
+      body: JSON.stringify({ usernameToRemove: username, tempId: profileId })
     })
       .then(response => response.json())
       .then(result => {
