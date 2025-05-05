@@ -12,6 +12,7 @@ socket.on('connect-erro', (msg) => {
 });
 
 if (!userParam || userParam !== loggedUser) {
+  console.log(userParam, loggedUser);
   alert('Acesso não autorizado');
   window.location.href = '/login';
 }
