@@ -322,7 +322,7 @@ app.delete('/whitelist/:owner', async (req, res) => {
 }
 );
 
-app.get('/api/whitelist', async (req, res) => {
+app.get('/whitelist', async (req, res) => {
   const { username, check } = req.query;
 
   if (!username || !check) {

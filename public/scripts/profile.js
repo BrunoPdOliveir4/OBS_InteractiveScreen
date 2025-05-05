@@ -47,14 +47,19 @@ if (!profileId) {
               },
               body: JSON.stringify({ usernameToAdd: userToAdd, tempId: profileId })
             })
-              .then(response => response.json())
-              .then(result => {
-                if (result.success) {
-                  addWhitelistUserToDOM(userToAdd, profileData.login, profileId);
-                } else {
-                  console.error('Erro ao adicionar usuário à whitelist:', result.error);
-                }
-              });
+            .then(async response => {
+              const result = await response.json();
+              if (response.ok) {
+                addWhitelistUserToDOM(userToAdd, profileData.login, profileId);
+              } else {
+                console.error('Erro ao adicionar usuário à whitelist:', result.error);
+                alert(result.error);
+              }
+            })
+            .catch(err => {
+              console.error('Erro inesperado:', err);
+              alert('Erro inesperado ao tentar adicionar à whitelist.');
+            });
           }
         });
       }
