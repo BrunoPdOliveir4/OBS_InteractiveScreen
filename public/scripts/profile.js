@@ -33,7 +33,7 @@ if (!profileId) {
             addWhitelistUserToDOM(user, profileData.login, profileId);
           });
         } else {
-          document.getElementById('whitelist').textContent = 'Ainda não há usuários registrados na sua whitelist.';
+          document.getElementById('whitelist-list').textContent = 'Ainda não há usuários registrados na sua whitelist.';
         }
 
         // Adicionar usuário à whitelist
