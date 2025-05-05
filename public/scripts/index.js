@@ -20,7 +20,6 @@ if (!userParam || userParam !== loggedUser) {
       console.log(userParam, loggedUser);
       alert('Acesso não autorizado');
       window.location.href = '/login';
-      return;
     }
   } catch (error) {
   console.log(userParam, loggedUser);
