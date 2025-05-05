@@ -25,6 +25,7 @@ mongoose.connect(process.env.MONGO_URI, {
   process.exit(1);
 });
 
+app.use(express.json());
 
 
 app.use(express.static(path.join(__dirname, 'public')));
