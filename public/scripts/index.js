@@ -10,28 +10,30 @@ socket.on('connect-erro', (msg) => {
   alert(msg);
   window.location.href = '/login';
 });
+(async () => {
+  if (!userParam || userParam !== loggedUser) {
+    try {
+      const response = await fetch(`/whitelist?username=${loggedUser}&check=${userParam}`);
 
-if (!userParam || userParam !== loggedUser) {
-  try {
-    const response = await fetch(`/whitelist?username=${loggedUser}&check=${userParam}`);
-    
-    if (!response.ok) {
-      throw new Error(`Erro HTTP: ${response.status}`);
-    }
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status}`);
+      }
 
-    const result = await response.json();
+      const result = await response.json();
 
-    if (!result.whitelisted) {
-      console.log('Usuário não está na whitelist:', userParam, loggedUser);
+      if (!result.whitelisted) {
+        console.log('Usuário não está na whitelist:', userParam, loggedUser);
+        alert('Acesso não autorizado');
+        window.location.href = '/login';
+      }
+    } catch (error) {
+      console.error('Erro na verificação de whitelist:', error);
       alert('Acesso não autorizado');
       window.location.href = '/login';
     }
-  } catch (error) {
-    console.error('Erro na verificação de whitelist:', error);
-    alert('Acesso não autorizado');
-    window.location.href = '/login';
   }
-}
+})();
+
 
 
 const apagadorVisual = elementManager.createEraser();
