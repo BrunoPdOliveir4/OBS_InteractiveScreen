@@ -36,7 +36,7 @@ if (!profileId) {
               headers: {
                 'Content-Type': 'application/json'
               },
-              body: JSON.stringify({ user: userToAdd })
+              body: JSON.stringify({ user: userToAdd, tempId: profileId })
             })
             .then(response => response.json())
             .then(data => {
@@ -48,12 +48,12 @@ if (!profileId) {
                 deleteUser.textContent = '-';
                 deleteUser.className = 'delete-user';
                 deleteUser.addEventListener('click', () => {
-                  fetch(`/api/delete-whitelist/${data.login}`, {
+                  fetch(`/whitelist/${data.login}`, {
                     method: 'DELETE',
                     headers: {
                       'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ usernameToAdd: userToAdd, tempId: profileId })
+                    body: JSON.stringify({ usernameToRemove: userToAdd, tempId: profileId })
                   })
                   .then(response => response.json())
                   .then(data => {
@@ -78,15 +78,15 @@ if (!profileId) {
               userElement.className = 'whitelist-user';
               userElement.textContent = user;
               const deleteUser = document.createElement('button');
-              deleteUser.textContent = 'X';
+              deleteUser.textContent = '-';
               deleteUser.className = 'delete-user';
               deleteUser.addEventListener('click', () => {
-                fetch(`/api/delete-whitelist/${data.login}`, {
+                fetch(`/whitelist/${data.login}`, {
                   method: 'DELETE',
                   headers: {
                     'Content-Type': 'application/json'
                   },
-                  body: JSON.stringify({ user })
+                  body: JSON.stringify({ usernameToRemove: user, tempId: profileId })
                 })
                 .then(response => response.json())
                 .then(data => {

@@ -289,6 +289,38 @@ app.post('/whitelist/:owner', async (req, res) => {
   }
 });
 
+app.delete('/whitelist/:owner', async (req, res) => {
+  const { usernameToRemove, tempId } = req.body;
+  const { owner } = req.params;
+  const ownerUsername = owner;
+
+  if (!ownerUsername || !usernameToRemove) {
+    return res.status(400).json({ error: 'Both ownerUsername and usernameToRemove are required.' });
+  }
+
+  if(ownerUsername !== userCache.get(tempId).login){
+    return res.status(403).json({ error: 'You are not authorized to remove users from this whitelist.' });
+  }
+
+  if (ownerUsername === usernameToRemove) {
+    return res.status(400).json({ error: 'You cannot remove yourself from the whitelist.' });
+  }
+  try {
+    const owner = await User.findOne({ username: ownerUsername });
+
+    if (!owner) {
+      return res.status(404).json({ error: 'Owner user not found.' });
+    }
+
+    owner.whitelist = owner.whitelist.filter(user => user !== usernameToRemove);
+    await owner.save();
+
+    res.status(200).json(owner);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+);
 
 app.get('/api/whitelist', async (req, res) => {
   const { username, check } = req.query;
