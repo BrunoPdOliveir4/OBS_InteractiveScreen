@@ -108,3 +108,11 @@ button:hover {
     justify-content: space-between;
     align-items: center;
 }
+.logo-observer{
+    position: absolute;
+    top: -15dvh;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 500px;
+    height: 500px;
+}

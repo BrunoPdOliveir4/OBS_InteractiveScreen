@@ -8,11 +8,15 @@
 </head>
 <body>
   <div id="container">
-    <h1>Login</h1>
-    <p>Bem-vindo ao OBServer! Conecte com sua conta TWITCH!</p>
+    <div class="logo">
+      <img src="./images/OBS-server.png" alt="">
+    </div>
+    <h1>Bem-vindo ao OBServer</h1>
+    <p>Conecte-se com sua conta Twitch para começar a transmitir!</p>
     <button id="login-button">Login com Twitch</button>
     <div id="error-message" style="color: red;"></div>
   </div>
+  <canvas id="mouse-trail"></canvas>
   <script type="module" src="./scripts/login.js"></script>
 </body>
 </html>
