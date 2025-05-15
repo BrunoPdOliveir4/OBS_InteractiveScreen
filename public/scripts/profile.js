@@ -1,4 +1,4 @@
-const { showPopup } = require("./utils/PopUp");
+import { showPopup } from "./utils/PopUp.js";
 
 const params = new URLSearchParams(window.location.search);
 const profileId = params.get('id');
