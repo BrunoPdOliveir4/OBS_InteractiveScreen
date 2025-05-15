@@ -1,3 +1,5 @@
+import { showPopup } from "./utils/PopUp.js";
+
 const params = new URLSearchParams(window.location.search);
 const profileId = params.get('id');
 
@@ -53,12 +55,12 @@ if (!profileId) {
                 addWhitelistUserToDOM(userToAdd, profileData.login, profileId);
               } else {
                 console.error('Erro ao adicionar usuário à whitelist:', result.error);
-                alert(result.error);
+                showPopup(result.error, true);
               }
             })
             .catch(err => {
               console.error('Erro inesperado:', err);
-              alert('Erro inesperado ao tentar adicionar à whitelist.');
+              showPopup('Erro inesperado ao tentar adicionar à whitelist.', true);
             });
           }
         });
@@ -84,7 +86,7 @@ function addWhitelistUserToDOM(username, login, profileId) {
   deleteUser.addEventListener('click', async(elmnt) => {
     const deleterUname = elmnt.target.dataset.username;
     if (deleterUname === login) {
-      alert('Você não pode remover a si mesmo da whitelist.');
+      showPopup('Você não pode remover a si mesmo da whitelist.', true);
       return;
     }
     fetch(`/whitelist/${login}`, {
@@ -98,7 +100,7 @@ function addWhitelistUserToDOM(username, login, profileId) {
         const result = await response.json();
         if(response.status !== 200) {
           console.error('Erro ao remover usuário da whitelist:', result.error);
-          alert(result.error);
+          showPopup(result.error, true);
           return;
         }
         userElement.remove();
