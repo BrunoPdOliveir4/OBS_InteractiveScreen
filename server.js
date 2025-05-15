@@ -283,9 +283,10 @@ app.post('/whitelist/:owner', async (req, res) => {
     if (!owner.whitelist.includes(usernameToAdd)) {
       owner.whitelist.push(usernameToAdd);
       await owner.save();
+      return res.status(200).json(owner);
     }
 
-    res.status(200).json(owner);
+    return res.status(400).json({error: "Usuário já está na Whitelist!"})
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
