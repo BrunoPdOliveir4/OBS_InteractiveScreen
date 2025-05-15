@@ -1,9 +1,10 @@
 import { ElementManager } from "./utils/ElementsManager.js";
+import { showPopup } from "./utils/PopUp.js";
 const elementManager = new ElementManager();
 const socket = io();
 
 socket.on('connect-erro', (msg) => {
-  alert(msg);
+  showPopup(msg,true);
   window.location.href = '/login';
 });
 

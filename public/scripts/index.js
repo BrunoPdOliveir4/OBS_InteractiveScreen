@@ -1,4 +1,5 @@
 import { ElementManager } from './utils/ElementsManager.js';
+import { showPopup } from './utils/PopUp.js';
 const elementManager = new ElementManager();
 const pathname = window.location.pathname + window.location.search;
 const urlParams = new URLSearchParams(window.location.search);
@@ -7,7 +8,7 @@ const loggedUser = localStorage.getItem('login');
 
 const socket = io();
 socket.on('connect-erro', (msg) => {
-  alert(msg);
+  showPopup(msg, true);
   window.location.href = '/login';
 });
 (async () => {
@@ -23,12 +24,12 @@ socket.on('connect-erro', (msg) => {
 
       if (!result.whitelisted) {
         console.log('Usuário não está na whitelist:', userParam, loggedUser);
-        alert('Acesso não autorizado');
+        showPopup('Acesso não autorizado',true);
         window.location.href = '/login';
       }
     } catch (error) {
       console.error('Erro na verificação de whitelist:', error);
-      alert('Acesso não autorizado');
+      showPopup('Acesso não autorizado',true);
       window.location.href = '/login';
     }
   }
