@@ -1,2 +1,17 @@
 node_modules
 .env
+
+# TypeScript build output
+dist/
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
