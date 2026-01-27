@@ -6,7 +6,7 @@ import { DrawingManager } from '../managers/DrawingManager.js';
 import { stateManager } from '../managers/StateManager.js';
 import { showPopup } from '../components/PopUp.js';
 import { generateElementId, redirect } from '../utils/helpers.js';
-import { ROUTES, TWITCH_EMBED_URL, SOCKET_EVENTS } from '../utils/constants.js';
+import { ROUTES, SOCKET_EVENTS } from '../utils/constants.js';
 
 class EditorPage {
   constructor() {
@@ -16,6 +16,9 @@ class EditorPage {
     this.userParam = stateManager.getUrlParam('user');
     this.loggedUser = stateManager.getCurrentUser();
     this.area = null;
+    this.twitchEmbed = null;
+    this.twitchEmbedContainer = null;
+    this.liveClickable = false;
   }
 
   async init() {
@@ -92,14 +95,55 @@ class EditorPage {
   }
 
   createTwitchEmbed() {
-    const iframe = document.createElement('iframe');
-    iframe.src = `${TWITCH_EMBED_URL}?channel=${this.userParam}&parent=obs-interactivescreen.onrender.com`;
-    iframe.width = '1920px';
-    iframe.height = '1080px';
-    iframe.allowFullscreen = true;
-    iframe.style.pointerEvents = 'none';
-    iframe.style.opacity = '0.5';
-    this.area.appendChild(iframe);
+    const embedContainer = document.getElementById('twitch-embed');
+    if (!embedContainer) return;
+
+    // Style the container
+    embedContainer.style.position = 'absolute';
+    embedContainer.style.top = '0';
+    embedContainer.style.left = '0';
+    embedContainer.style.zIndex = '-1';
+    embedContainer.style.pointerEvents = 'none';
+    embedContainer.style.opacity = '0.5';
+    embedContainer.style.width = `${this.area.clientWidth}px`;
+    embedContainer.style.height = `${this.area.clientHeight}px`;
+
+    // Get parent domain for embed
+    const parentDomain = window.location.hostname;
+
+    // Create Twitch embed using SDK
+    // The SDK automatically handles user authentication if they're logged into Twitch
+    // Subscribers will get ad-free viewing automatically
+    this.twitchEmbed = new Twitch.Embed('twitch-embed', {
+      width: '100%',
+      height: '100%',
+      channel: this.userParam,
+      parent: [parentDomain, 'obs-interactivescreen.onrender.com'],
+      layout: 'video',
+      autoplay: true,
+      muted: false,
+    });
+
+    this.twitchEmbedContainer = embedContainer;
+
+    // Resize when window resizes
+    window.addEventListener('resize', () => this.resizeTwitchEmbed());
+  }
+
+  resizeTwitchEmbed() {
+    if (this.twitchEmbedContainer && this.area) {
+      this.twitchEmbedContainer.style.width = `${this.area.clientWidth}px`;
+      this.twitchEmbedContainer.style.height = `${this.area.clientHeight}px`;
+    }
+  }
+
+  toggleLiveClickable() {
+    this.liveClickable = !this.liveClickable;
+    if (this.twitchEmbedContainer) {
+      this.twitchEmbedContainer.style.pointerEvents = this.liveClickable ? 'auto' : 'none';
+      this.twitchEmbedContainer.style.zIndex = this.liveClickable ? '10' : '-1';
+    }
+    return this.liveClickable;
   }
 
   initDrawing() {
@@ -155,6 +199,12 @@ class EditorPage {
     // Delete all button
     document.getElementById('btn-delete-all')?.addEventListener('click', () => {
       this.deleteAllElements();
+    });
+
+    // Toggle live clickable button
+    document.getElementById('btn-toggle-live')?.addEventListener('click', () => {
+      const isClickable = this.toggleLiveClickable();
+      this.updateButtonState('btn-toggle-live', isClickable);
     });
   }
 

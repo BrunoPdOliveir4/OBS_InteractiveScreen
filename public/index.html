@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Editor Page</title>
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="https://embed.twitch.tv/embed/v1.js"></script>
   <link rel="stylesheet" href="./styles/index.css" />
 </head>
 <body>
@@ -16,10 +17,11 @@
     <button id="btn-add-img">+ Imagem</button>
     <button id="btn-add-video">+ Video</button><label style="background-color: red;"> in test</label>
     <button id="btn-delete-all">[] Apagar Tudo</button>
+    <button id="btn-toggle-live">Live Clicavel</button>
   </div>
 
   <div id="area">
-
+    <div id="twitch-embed"></div>
   </div>
 
   <div id="popup" class="popup hidden">
