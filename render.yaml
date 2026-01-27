@@ -1,6 +1,0 @@
-services:
-  - type: web
-    name: obs-interactivescreen
-    runtime: node
-    buildCommand: npm install --include=dev && npm run build
-    startCommand: npm start
